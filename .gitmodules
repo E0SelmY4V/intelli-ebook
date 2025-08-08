@@ -1,0 +1,3 @@
+[submodule "scpo-php"]
+	path = scpo-php
+	url = git@ssh.github.com:n9gc/php.git
