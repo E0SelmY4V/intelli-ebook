@@ -22,3 +22,24 @@
 	overflow: auto;
 }
 
+#info_div {
+	position: relative;
+	background: aqua;
+	padding: 1em;
+	padding-left: 4em;
+	margin: 2em;
+	border: 1px solid #000;
+}
+
+#info_close_span {
+	position: absolute;
+	right: 1em;
+	top: .5em;
+	font-size: larger;
+}
+
+#info_close_span:hover {
+	color: #666;
+	cursor: pointer;
+}
+

@@ -25,9 +25,30 @@ async function req(url, init) {
 	]);
 	return r;
 }
+/**必须在 onload 里用 */
+function showInfo(title, body) {
+	const div = document.createElement('div');
+	div.innerHTML = `
+		<h2>${title}</h2>
+		<p>${body}</p>
+	`;
+	const span = document.createElement("span");
+	span.id = 'info_close_span';
+	span.innerHTML = 'x';
+	span.onclick = () => document.body.removeChild(div);
+	div.appendChild(span);
+	div.id = 'info_div';
+	console.log(title, body)
+	document.body.insertBefore(div, document.body.children[0]);
+}
 
 const query = new URLSearchParams(window.location.search);
 
 onload = () => {
 	document.getElementsByName("from_input").forEach(n => n.value = location);
+	setOnload.fns.forEach(f => f());
 };
+function setOnload(fn) {
+	setOnload.fns.push(fn);
+}
+setOnload.fns = [];
