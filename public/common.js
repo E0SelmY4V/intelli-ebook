@@ -68,12 +68,16 @@ class CallbackHandler {
 	 */
 	constructor(cbs, initCode = 'start') {
 		this.cbs = cbs;
+		/**@type {[string | [code: string, form: string | number], ...any[]} */
 		this.callback = JSON.parse(query.get('info') ?? `["${initCode}"]`);
 	}
 	handle = () => {
-		const [formId, info] = this.cbs[this.callback[0]] ?? wrong(Error('未知回调代码: ' + query.get('info')));
-		showForm(formId);
-		if (typeof info === 'function') info(this.callback.slice(1));
-		else if (info) showInfo(...info);
+		let form, code, info;
+		if (Array.isArray(this.callback[0])) [[code, form], ...info] = this.callback;
+		else[code, ...info] = this.callback;
+		const [cbForm, action] = this.cbs[code] ?? wrong(Error('未知回调代码: ' + query.get('info')));
+		showForm(form ?? cbForm);
+		if (typeof action === 'function') action(info);
+		else if (action) showInfo(...action);
 	}
 }

@@ -10,28 +10,31 @@
 </head>
 
 <body>
-	<div data-step="0" name="sign_div" hidden="hidden">
-		<!-- 输入邮箱 -->
+	<div data-step="email" name="sign_div" hidden="hidden">
+		<h1>输入邮箱</h1>
+		<p>不论是注册还是找回密码，都请在下方输入你的邮箱</p>
 		<form action="/api/signup.php" method="post">
-			<input name="step" type="number" value="0" hidden="hidden" />
+			<input name="step" hidden="hidden" />
 			<input name="from_input" hidden="hidden" />
 			<input name="email" type="email" placeholder="输入你的邮箱" />
 			<input type="submit" />
 		</form>
 	</div>
-	<div data-step="1" name="sign_div" hidden="hidden">
-		<!-- 验证邮箱 -->
+	<div data-step="code" name="sign_div" hidden="hidden">
+		<h1>验证邮箱</h1>
+		<p>请将发到你邮箱里的 6 位代码填入下方</p>
 		<form action="/api/signup.php" method="post">
-			<input name="step" type="number" value="1" hidden="hidden" />
+			<input name="step" hidden="hidden" />
 			<input name="from_input" hidden="hidden" />
 			<input name="code" type="text" placeholder="输入邮箱的 6 位代码" />
 			<input type="submit" />
 		</form>
 	</div>
-	<div data-step="2" name="sign_div" hidden="hidden">
-		<!-- 输入账号密码 -->
+	<div data-step="signup" name="sign_div" hidden="hidden">
+		<h1>注册账号</h1>
+		<p>请创建你全站唯一的用户名，并输入密码</p>
 		<form action="/api/signup.php" method="post">
-			<input name="step" type="number" value="2" hidden="hidden" />
+			<input name="step" hidden="hidden" />
 			<input name="from_input" hidden="hidden" />
 			<input name="username" type="text" placeholder="输入用户名">
 			<input name="password_1" type="password" placeholder="输入密码">
@@ -39,9 +42,21 @@
 			<input type="submit" />
 		</form>
 	</div>
-	<div data-step="3" name="sign_div" hidden="hidden">
-		<h1>恭喜！</h1>
-		<p>您已经成功注册，用户编号为<a id="id_a">-1</a></p>
+	<div data-step="findback" name="sign_div" hidden="hidden">
+		<h1>重置密码 </h1>
+		<p>你的邮箱已绑定一个名为 <code id="find_name_code"></code> 的账号，创建于 <span id="find_time_span"></span></p>
+		<p>如果你想要重置密码，在下方填入新密码即可</p>
+		<form action="/api/signup.php" method="post">
+			<input name="step" hidden="hidden" />
+			<input name="from_input" hidden="hidden" />
+			<input name="password_1" type="password" placeholder="输入密码">
+			<input name="password_2" type="password" placeholder="再次输入密码">
+			<input type="submit" />
+		</form>
+	</div>
+	<div data-step="ok" name="sign_div" hidden="hidden">
+		<h1>成功！</h1>
+		<p>您的用户编号为<a id="id_a">-1</a></p>
 	</div>
 </body>
 
