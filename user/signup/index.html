@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<script src="/public/common.js"></script>
+	<script src="main.js"></script>
+	<link rel="stylesheet" href="style.css" />
+	<link rel="stylesheet" href="/public/style.css">
+</head>
+
+<body>
+	<div data-step="0" name="sign_div" hidden="hidden">
+		<!-- 输入邮箱 -->
+		<form action="/api/signup.php" method="post">
+			<input name="step" type="number" value="0" hidden="hidden" />
+			<input name="from_input" hidden="hidden" />
+			<input name="email" type="email" placeholder="输入你的邮箱" />
+			<input type="submit" />
+		</form>
+	</div>
+	<div data-step="1" name="sign_div" hidden="hidden">
+		<!-- 验证邮箱 -->
+		<form action="/api/signup.php" method="post">
+			<input name="step" type="number" value="1" hidden="hidden" />
+			<input name="from_input" hidden="hidden" />
+			<input name="code" type="text" placeholder="输入邮箱的 6 位代码" />
+			<input type="submit" />
+		</form>
+	</div>
+	<div data-step="2" name="sign_div" hidden="hidden">
+		<!-- 输入账号密码 -->
+		<form action="/api/signup.php" method="post">
+			<input name="step" type="number" value="2" hidden="hidden" />
+			<input name="from_input" hidden="hidden" />
+			<input name="username" type="text" placeholder="输入用户名">
+			<input name="password_1" type="password" placeholder="输入密码">
+			<input name="password_2" type="password" placeholder="再次输入密码">
+			<input type="submit" />
+		</form>
+	</div>
+	<div data-step="3" name="sign_div" hidden="hidden">
+		<h1>恭喜！</h1>
+		<p>您已经成功注册，用户编号为<a id="id_a">-1</a></p>
+	</div>
+</body>
+
+</html>
