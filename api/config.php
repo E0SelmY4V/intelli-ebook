@@ -2,8 +2,10 @@
 
 require_once __DIR__ . '/../scpo-php/getconfig.php';
 require_once __DIR__ . '/../self/mysql.php';
+require_once __DIR__ . '/../self/smtp.php';
 
 use ScpoPHP\Config as Cfg;
 
 new Cfg\Db(SQL_CONFIG + Cfg\Db::$now->params);
 new Cfg\Errpage('/public/wrong.html?');
+new Cfg\Email(new Cfg\Smtp(...SMTP_CONFIG), 'ccpira@163.com', '中国农业大学');
