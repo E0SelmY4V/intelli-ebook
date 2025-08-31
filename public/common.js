@@ -26,6 +26,8 @@ async function req(url, init) {
 	return r;
 }
 
+const query = new URLSearchParams(window.location.search);
+
 onload = () => {
 	document.getElementsByName("from_input").forEach(n => n.value = location);
 };
