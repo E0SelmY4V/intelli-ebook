@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<script src="/public/common.js"></script>
+	<script src="main.js"></script>
+	<link rel="stylesheet" href="style.css" />
+	<link rel="stylesheet" href="/public/style.css">
+</head>
+
+<body>
+	<form action="/api/login.php" method="post" hidden="hidden">
+		<input name="from_input" hidden="hidden" />
+		<input name="checking" type="checkbox" checked />
+		<input id="status_check_input" type="submit" />
+	</form>
+	<div data-step="0" name="sign_div" hidden="hidden">
+		<form action="/api/login.php" method="post">
+			<input name="from_input" hidden="hidden" />
+			<input name="id" type="text" placeholder="输入你的邮箱或用户名" />
+			<input name="password" type="password" placeholder="输入密码" />
+			<input type="submit" />
+		</form>
+	</div>
+	<div data-step="1" name="sign_div" hidden="hidden">
+		<h1>欢迎！</h1>
+		<p>登录成功，用户编号为<a id="id_a">-1</a></p>
+	</div>
+</body>
+
+</html>
