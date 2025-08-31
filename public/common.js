@@ -81,3 +81,11 @@ class CallbackHandler {
 		else if (action) showInfo(...action);
 	}
 }
+
+function initStep() {
+	setOnload(() => {
+		Array
+			.from(document.getElementsByName('step'))
+			.forEach(n => n.value ||= n.parentNode.parentNode.dataset.step);
+	});
+}

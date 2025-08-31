@@ -1,10 +1,6 @@
 /// <reference path="../../public/common.js" />
 
-setOnload(() => {
-	Array
-		.from(document.getElementsByName('step'))
-		.forEach(n => n.value = n.parentNode.parentNode.dataset.step);
-});
+initStep();
 
 setOnload(new CallbackHandler({
 	start: ['email'],

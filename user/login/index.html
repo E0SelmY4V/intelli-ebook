@@ -11,21 +11,28 @@
 
 <body>
 	<form action="/api/login.php" method="post" hidden="hidden">
-		<input name="from_input" hidden="hidden" />
-		<input name="checking" type="checkbox" checked />
+		<input name="from_input" />
+		<input name="step" value="check" />
 		<input id="status_check_input" type="submit" />
 	</form>
-	<div data-step="0" name="sign_div" hidden="hidden">
+	<div data-step="login" name="sign_div" hidden="hidden">
+		<h1>欢迎回来</h1>
 		<form action="/api/login.php" method="post">
 			<input name="from_input" hidden="hidden" />
+			<input name="step" hidden="hidden" />
 			<input name="id" type="text" placeholder="输入你的邮箱或用户名" />
 			<input name="password" type="password" placeholder="输入密码" />
-			<input type="submit" />
+			<input type="submit" value="登录" />
 		</form>
 	</div>
-	<div data-step="1" name="sign_div" hidden="hidden">
-		<h1>欢迎！</h1>
+	<div data-step="logout" name="sign_div" hidden="hidden">
+		<h1>你好！</h1>
 		<p>登录成功，用户编号为<a id="id_a">-1</a></p>
+		<form action="/api/login.php" method="post">
+			<input name="from_input" hidden="hidden" />
+			<input name="step" hidden="hidden" />
+			<input type="submit" value="登出" />
+		</form>
 	</div>
 </body>
 
