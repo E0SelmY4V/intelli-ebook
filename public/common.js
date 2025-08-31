@@ -52,3 +52,28 @@ function setOnload(fn) {
 	setOnload.fns.push(fn);
 }
 setOnload.fns = [];
+
+/**必须在 onload 里用 */
+function showForm(id) {
+	Array
+		.from(document.getElementsByName('sign_div'))
+		.find(n => n.dataset.step === id.toString())
+		.hidden = false;
+}
+
+class CallbackHandler {
+	/**
+	 * @param {Record<string, [number | string, ([string, string] | ((callback: any[]) => void))?]>} cbs
+	 * @param {string} initCode
+	 */
+	constructor(cbs, initCode = 'start') {
+		this.cbs = cbs;
+		this.callback = JSON.parse(query.get('info') ?? `["${initCode}"]`);
+	}
+	handle = () => {
+		const [formId, info] = this.cbs[this.callback[0]] ?? wrong(Error('未知回调代码: ' + query.get('info')));
+		showForm(formId);
+		if (typeof info === 'function') info(this.callback.slice(1));
+		else if (info) showInfo(...info);
+	}
+}
