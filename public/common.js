@@ -7,7 +7,7 @@ function wrong(error, front = true) {
 		<br />
 		<hr color="#fff" />
 		<br />
-		<p>请你带着以下错误报告向管理员汇报，或者试试刷新也可以。</p>
+		<p>请你带着以下错误报告向管理员汇报，或者重试一下？</p>
 		<pre id="wrong_explain_pre">${error}</pre>
 	`;
 	div.id = 'wrong_div';
