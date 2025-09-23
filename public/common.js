@@ -3,13 +3,21 @@
  */
 
 /**
+ * 字符串拼出错误
+ * @param {...string} infos 错误信息
+ */
+function getError(...infos) {
+	return Error(infos.join('\n'));
+}
+
+/**
  * 显示大红色错误页面并终止
- * @param {Error | readonly Tostrable[]} error 错误信息
+ * @param {Error} error 错误信息
  * @param {boolean} [front=true] 是否是前端发生的错误
  * @returns {never}
  */
 function wrong(error, front = true) {
-	error = Array.isArray(error) ? error.join('\n') : error?.toString() ?? 'Unknown';
+	error = error?.toString() ?? 'Unknown';
 	const div = document.createElement("div");
 	div.innerHTML = `
 		<h1>我的天啊${front ? '页面' : '后台'}出问题了！</h1>
@@ -31,12 +39,12 @@ function wrong(error, front = true) {
  */
 async function req(url, init) {
 	const r = await fetch(url, init);
-	if (!r.ok) wrong([
+	if (!r.ok) wrong(getError(
 		`${r.status} ${r.statusText}`,
 		'',
 		Array.from(r.headers.entries()).map(([k, v]) => `${k}: ${v};`).join('\n'),
 		await r.text(),
-	]);
+	));
 	return r;
 }
 /**
