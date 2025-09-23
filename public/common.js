@@ -44,8 +44,10 @@ async function req(url, init) {
  * 必须在 onload 里用
  * @param {Tostrable} title 标题
  * @param {Tostrable} body 内容
+ * @param {HTMLElement} [node=document.body.children[0]] 需要被操作的元素
+ * @param {boolean} [before=true] 在 node 前插入，而不是作为其内部第一个元素
  */
-function showInfo(title, body) {
+function showInfo(title, body, node = document.body.children[0], before = true) {
 	const div = document.createElement('div');
 	div.innerHTML = `
 		<h2>${title}</h2>
@@ -57,8 +59,10 @@ function showInfo(title, body) {
 	span.onclick = () => document.body.removeChild(div);
 	div.appendChild(span);
 	div.id = 'info_div';
-	console.log(title, body)
-	document.body.insertBefore(div, document.body.children[0]);
+	console.log(title, body);
+	if (before) node.parentNode.insertBefore(div, node);
+	else if (node.children[0]) node.insertBefore(div, node.children[0]);
+	else node.appendChild(div);
 }
 
 /**页面所带的参数 */
