@@ -147,37 +147,21 @@ function showForm(step) {
  * @typedef {string | number} CbCode 页面回调状态名
  */
 /**
- * 页面状态管理器
+ * 获得页面状态管理器
+ * @param {Record<CbCode, [cbForm?: FormStep, action?: (Parameters<typeof showInfo> | ((cbData: any[]) => void))]>} cbs 各状态对应动作
+ * @param {CbCode} [initCode='start'] 起始状态
+ * @returns {() => void} 管理函数
  */
-class CallbackHandler {
-	/**
-	 * @param {Record<CbCode, [cbForm: FormStep, action?: (Parameters<typeof showInfo> | ((cbData: any[]) => void))]>} cbs 各状态对应动作
-	 * @param {CbCode} [initCode='start'] 起始状态
-	 */
-	constructor(cbs, initCode = 'start') {
-		this.cbs = cbs;
-		/**@type {[CbCode | [code: CbCode, form: FormStep], ...any[]} */
-		this.callback = JSON.parse(query.get('info') ?? `["${initCode}"]`);
-	}
-	/**
-	 * 管理函数
-	 */
-	handle = () => {
-		let form;
-		let code;
-		let info;
-		if (Array.isArray(this.callback[0])) [[code, form], ...info] = this.callback;
-		else[code, ...info] = this.callback;
-		const [cbForm, action] = this.cbs[code] ?? wrong(Error('未知回调代码: ' + query.get('info')));
-		showForm(form ?? cbForm);
+function initCallbackHandler(cbs, initCode = 'start') {
+	const infoRaw = query.get('info');
+	/**@type {[CbCode | [code: CbCode, infoForm: FormStep], ...any[]} */
+	const callback = JSON.parse(infoRaw ?? `["${initCode}"]`);
+	setOnload(() => {
+		const [infoHead, ...info] = callback;
+		const [code, infoForm = null] = Array.isArray(infoHead) ? infoHead : [infoHead]
+		const [cbForm, action] = cbs[code] ?? wrong('未知回调代码: ', infoRaw);
+		showForm(infoForm ?? cbForm ?? wrong(getError('没有指定显示哪一步表单: ', code, infoRaw)));
 		if (typeof action === 'function') action(info);
 		else if (action) showInfo(...action);
-	}
-}
-
-/**
- * 初始化
- */
-function initStep() {
-	console.log(123);
+	});
 }

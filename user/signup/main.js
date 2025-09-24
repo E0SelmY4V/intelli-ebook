@@ -1,8 +1,6 @@
 /// <reference path="../../public/common.js" />
 
-initStep();
-
-setOnload(new CallbackHandler({
+initCallbackHandler({
 	start: ['email'],
 	no_email: ['email', ["没输邮箱", "请重输"]],
 	wrong_email: ['email', ([email]) => showInfo("邮箱格式错误", `<code>${email ?? wrong('缺少邮箱信息')}</code> 不是一个有效的邮箱`)],
@@ -27,5 +25,5 @@ setOnload(new CallbackHandler({
 	succ: ['ok', ([uid]) => {
 		id_a.innerHTML = uid ?? wrong('缺少用户编号');
 	}],
-}).handle);
+});
 
