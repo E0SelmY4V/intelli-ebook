@@ -27,6 +27,7 @@
 		"url": "git+https://github.com/E0SelmY4V/intelli-ebook.git"
 	},
 	"scripts": {
+		"prepare": "husky",
 		"prefmt": "prettier -w .",
 		"fmt": "eslint . --fix",
 		"prelint": "prettier -c .",
