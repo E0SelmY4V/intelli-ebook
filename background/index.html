@@ -1,22 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<script src="/public/common.js"></script>
+		<script src="main.js"></script>
+		<link rel="stylesheet" href="./style.css" />
+		<link rel="stylesheet" href="/public/style.css" />
+	</head>
 
-<head>
-	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-	<script src="/public/common.js"></script>
-	<script src="main.js"></script>
-	<link rel="stylesheet" href="./style.css" />
-	<link rel="stylesheet" href="/public/style.css">
-</head>
-
-<body>
-	<form id="upload_form" action="/api/upload.php" method="post" enctype="multipart/form-data">
-		<input type="file" name="doc" /><br />
-		<input type="text" hidden="hidden" name="from_input" />
-		<script>
-		</script>
-		<input type="submit" value="上传" /><br />
-	</form>
-</body>
-
+	<body>
+		<form id="upload_form" action="/api/upload.php" method="post" enctype="multipart/form-data">
+			<input type="file" name="doc" /><br />
+			<input type="text" hidden="hidden" name="from_input" />
+			<script></script>
+			<input type="submit" value="上传" /><br />
+		</form>
+	</body>
 </html>

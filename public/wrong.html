@@ -1,17 +1,15 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<script src="/public/common.js"></script>
+		<link rel="stylesheet" href="/public/style.css" />
+	</head>
 
-<head>
-	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-	<script src="/public/common.js"></script>
-	<link rel="stylesheet" href="/public/style.css">
-</head>
-
-<body>
-	<script>
-		const a = new URLSearchParams(window.location.search);
-		wrong(a.get('info'), false);
-	</script>
-</body>
-
+	<body>
+		<script>
+			const a = new URLSearchParams(window.location.search);
+			wrong(a.get('info'), false);
+		</script>
+	</body>
 </html>

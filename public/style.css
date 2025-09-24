@@ -34,7 +34,7 @@
 #info_close_span {
 	position: absolute;
 	right: 1em;
-	top: .5em;
+	top: 0.5em;
 	font-size: larger;
 }
 
@@ -42,4 +42,3 @@
 	color: #666;
 	cursor: pointer;
 }
-
