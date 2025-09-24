@@ -17,7 +17,19 @@ function getError(...infos) {
  * @returns {never}
  */
 function wrong(error, front = true) {
-	error = error?.toString() ?? 'Unknown';
+	if (!error) wrong(Error('没有提供错误'));
+	if (wrong.errorsNow.size) {
+		wrong.errorsNow.add(error);
+		if (!wrong.errorsNow.size) throw error;
+		const aErr = new AggregateError(wrong.errorsNow, '多个错误');
+		if (!wrong.pre) {
+			wrong.errorsNow.clear();
+			wrong(aErr);
+		}
+		wrong.pre.innerText = aErr.toString();
+		throw aErr;
+	}
+	wrong.errorsNow.add(error);
 	const div = document.createElement("div");
 	div.innerHTML = `
 		<h1>我的天啊${front ? '页面' : '后台'}出问题了！</h1>
@@ -25,12 +37,33 @@ function wrong(error, front = true) {
 		<hr color="#fff" />
 		<br />
 		<p>请你带着以下错误报告向管理员汇报，或者重试一下？</p>
-		<pre id="wrong_explain_pre">${error}</pre>
 	`;
 	div.id = 'wrong_div';
+	const pre = wrong.pre = document.createElement('pre');
+	pre.innerText = error.toString();
+	div.appendChild(pre);
 	document.children[0].appendChild(div);
 	throw error;
 }
+/**@type {Set<Error>} */
+wrong.errorsNow = new Set();
+/**@type {HTMLPreElement | null} */
+wrong.pre = null;
+
+/**
+ * 用 wrong 函数包装可能报错的操作
+ * @template T
+ * @param {() => T} fn 可能报错的操作
+ * @returns {T} 操作结果
+ */
+function tryFn(fn) {
+	try {
+		return fn();
+	} catch (error) {
+		wrong(error);
+	}
+}
+
 /**
  * 发起网络请求，若有错误则显示大红色错误页面
  * @param {string} url 请求地址
@@ -38,7 +71,7 @@ function wrong(error, front = true) {
  * @returns {Promise<Response>} 请求结果
  */
 async function req(url, init) {
-	const r = await fetch(url, init);
+	const r = await tryFn(() => fetch(url, init));
 	if (!r.ok) wrong(getError(
 		`${r.status} ${r.statusText}`,
 		'',
@@ -68,20 +101,22 @@ function showInfo(title, body, node = document.body.children[0], before = true) 
 	div.appendChild(span);
 	div.id = 'info_div';
 	console.log(title, body);
-	if (before) node.parentNode.insertBefore(div, node);
-	else if (node.children[0]) node.insertBefore(div, node.children[0]);
-	else node.appendChild(div);
+	tryFn(() => {
+		if (before) node.parentNode.insertBefore(div, node);
+		else if (node.children[0]) node.insertBefore(div, node.children[0]);
+		else node.appendChild(div);
+	});
 }
 
 /**页面所带的参数 */
 const query = new URLSearchParams(window.location.search);
 
-onload = () => {
+onload = () => tryFn(() => {
 	// 初始化表单的状态标记
 	document.getElementsByName("from_input").forEach(n => n.value = location);
 	document.getElementsByName('step').forEach(n => n.value ||= n.parentNode.parentNode.dataset.step);
-	setOnload.fns.forEach(f => f());
-};
+	setOnload.fns.forEach(tryFn);
+});
 /**
  * 注册页面 onload 函数
  * @param {() => void} fn 函数
