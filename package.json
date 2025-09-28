@@ -21,7 +21,6 @@
 		"colortape": "latest",
 		"tape": "latest",
 		"@types/tape": "latest",
-		"esbuild": "latest",
 		"typescript": "latest"
 	},
 	"type": "module",
