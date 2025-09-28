@@ -1,4 +1,4 @@
-/// <reference path="../public/common.js" />
+/// <reference path="../public/dist/common.d.ts" />
 
 async function getBookNow() {
 	const cid = query.get('cid') ?? wrong(Error('不知道用户要看什么章节'));

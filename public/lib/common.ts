@@ -1,14 +1,11 @@
-/**
- * @typedef {string | number | null | undefined | boolean} Tostrable
- */
+type Tostrable = string | number | null | undefined | boolean;
 
 /**
- * @template {keyof HTMLElementTagNameMap} K
- * @param {string} id 元素 id
- * @param {K} tag
- * @returns {HTMLElementTagNameMap[K]}
+ * 用 id 获得元素并验证类型
+ * @param id 元素 id
+ * @param tag
  */
-function gid(id, tag) {
+function gid<K extends keyof HTMLElementTagNameMap>(id: string, tag: K): HTMLElementTagNameMap[K] {
 	const ele = document.getElementById(id) ?? wrong(getError('找不到:', id, tag));
 	if (ele.tagName !== tag) wrong(getError('错误的标签', id, tag));
 	// @ts-ignore
@@ -17,29 +14,28 @@ function gid(id, tag) {
 
 /**
  * 字符串拼出错误
- * @param {...Tostrable} infos 错误信息
+ * @param infos 错误信息
  */
-function getError(...infos) {
+function getError(...infos: Tostrable[]) {
 	return Error(infos.join('\n'));
 }
 
 /**
  * 显示大红色错误页面并终止
- * @param {Error} error 错误信息
- * @param {boolean} [front=true] 是否是前端发生的错误
- * @returns {never}
+ * @param error 错误信息
+ * @param front 是否是前端发生的错误
  */
-function wrong(error, front = true) {
+function wrong(error: Error, front = true): never {
 	if (!error) wrong(Error('没有提供错误'));
 	if (wrong.errorsNow.size) {
 		wrong.errorsNow.add(error);
 		if (!wrong.errorsNow.size) throw error;
 		const aErr = new AggregateError(wrong.errorsNow, '多个错误');
-		if (!wrong.pre) {
+		if (!wrong.pre.ele) {
 			wrong.errorsNow.clear();
 			wrong(aErr);
 		}
-		wrong.pre.innerText = aErr.toString();
+		wrong.pre.ele.innerText = aErr.toString();
 		throw aErr;
 	}
 	wrong.errorsNow.add(error);
@@ -52,24 +48,23 @@ function wrong(error, front = true) {
 		<p>请你带着以下错误报告向管理员汇报，或者重试一下？</p>
 	`;
 	div.id = 'wrong_div';
-	const pre = wrong.pre = document.createElement('pre');
+	const pre = wrong.pre.ele = document.createElement('pre');
 	pre.innerText = error.toString();
 	div.appendChild(pre);
 	document.children[0].appendChild(div);
 	throw error;
 }
-/**@type {Set<Error>} */
-wrong.errorsNow = new Set();
-/**@type {HTMLPreElement | null} */
-wrong.pre = null;
+namespace wrong {
+	export const errorsNow = new Set<Error>();
+	export const pre: { ele: HTMLPreElement | null } = { ele: null };
+}
 
 /**
  * 用 wrong 函数包装可能报错的操作
- * @template T
- * @param {() => T} fn 可能报错的操作
- * @returns {T} 操作结果
+ * @param fn 可能报错的操作
+ * @returns 操作结果
  */
-function tryFn(fn) {
+function tryFn<T>(fn: () => T): T {
 	try {
 		return fn();
 	} catch (error) {
@@ -80,11 +75,11 @@ function tryFn(fn) {
 
 /**
  * 发起网络请求，若有错误则显示大红色错误页面
- * @param {string} url 请求地址
- * @param {RequestInit} [init] 请求配置
- * @returns {Promise<Response>} 请求结果
+ * @param url 请求地址
+ * @param init 请求配置
+ * @returns 请求结果
  */
-async function req(url, init) {
+async function req(url: string | URL | Request, init: RequestInit | undefined): Promise<Response> {
 	const r = await tryFn(() => fetch(url, init));
 	if (!r.ok) wrong(getError(
 		`${r.status} ${r.statusText}`,
@@ -98,12 +93,12 @@ async function req(url, init) {
 /**
  * 显示页面顶部提示
  * 必须在 onload 里用
- * @param {Tostrable} title 标题
- * @param {Tostrable} body 内容
- * @param {Element} [node=document.body.children[0]] 需要被操作的元素
- * @param {boolean} [before=true] 在 node 前插入，而不是作为其内部第一个元素
+ * @param title 标题
+ * @param body 内容
+ * @param node 需要被操作的元素
+ * @param before 在 node 前插入，而不是作为其内部第一个元素
  */
-function showInfo(title, body, node = document.body.children[0], before = true) {
+function showInfo(title: Tostrable, body: Tostrable, node: Element = document.body.children[0], before = true) {
 	const div = document.createElement('div');
 	div.innerHTML = `
 		<h2>${title}</h2>
@@ -137,24 +132,26 @@ onload = () => tryFn(() => {
 });
 /**
  * 注册页面 onload 函数
- * @param {() => void} fn 函数
+ * @param fn 函数
  */
-function setOnload(fn) {
+function setOnload(fn: () => void) {
 	setOnload.fns.push(fn);
 }
-/**@type {(() => void)[]} */
-setOnload.fns = [];
+namespace setOnload {
+	export const fns: (() => void)[] = [];
+}
 
 
 /**
- * @typedef {string | number} FormStep 表单标识，写在 data-step 标签里
+ * 表单标识，写在 data-step 标签里
  */
+type FormStep = string | number;
 /**
  * 在多表单页面里显示特定表单
  * 必须在 onload 里用
- * @param {FormStep} step 表单标识
+ * @param step 表单标识
  */
-function showForm(step) {
+function showForm(step: FormStep) {
 	const stepStr = step.toString();
 	(Array
 		.from(document.getElementsByName('sign_div'))
@@ -164,17 +161,24 @@ function showForm(step) {
 }
 
 /**
- * @typedef {string | number} CbCode 页面回调状态名
+ * 页面回调状态名
  */
+type CbCode = string | number;
+type CbMap = Record<
+	CbCode,
+	[
+		cbForm?: FormStep,
+		action?: Parameters<typeof showInfo> | ((cbData: any[]) => void),
+	]
+>;
 /**
  * 获得页面状态管理器
- * @param {Record<CbCode, [cbForm?: FormStep, action?: (Parameters<typeof showInfo> | ((cbData: any[]) => void))]>} cbs 各状态对应动作
- * @param {CbCode} [initCode='start'] 起始状态
+ * @param cbs 各状态对应动作
+ * @param initCode 起始状态
  */
-function initCallbackHandler(cbs, initCode = 'start') {
+function initCallbackHandler(cbs: CbMap, initCode: CbCode = 'start') {
 	const infoRaw = query.get('info');
-	/**@type {[CbCode | [code: CbCode, infoForm: FormStep], ...any[]]} */
-	const callback = JSON.parse(infoRaw ?? `["${initCode}"]`);
+	const callback: [CbCode | [code: CbCode, infoForm: FormStep], ...any[]] = JSON.parse(infoRaw ?? `["${initCode}"]`);
 	setOnload(() => {
 		const [infoHead, ...info] = callback;
 		const [code, infoForm = null] = Array.isArray(infoHead) ? infoHead : [infoHead];

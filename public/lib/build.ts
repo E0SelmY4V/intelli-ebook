@@ -8,3 +8,9 @@ build({
 	outdir: '../dist',
 });
 
+build({
+	entryPoints: ['common.ts'],
+	outdir: '../dist',
+	format: 'esm',
+});
+

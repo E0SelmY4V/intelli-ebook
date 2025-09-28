@@ -1,4 +1,4 @@
-/// <reference path="../../public/common.js" />
+/// <reference path="../../public/dist/common.d.ts" />
 
 initCallbackHandler({
 	start: ['email'],
