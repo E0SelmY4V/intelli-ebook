@@ -7,7 +7,7 @@ type Tostrable = string | number | null | undefined | boolean;
  */
 function gid<K extends keyof HTMLElementTagNameMap>(id: string, tag: K): HTMLElementTagNameMap[K] {
 	const ele = document.getElementById(id) ?? wrong(getError('找不到:', id, tag));
-	if (ele.tagName !== tag) wrong(getError('错误的标签', id, tag));
+	if (ele.tagName.toLowerCase() !== tag) wrong(getError('错误的标签', id, tag));
 	// @ts-ignore
 	return ele;
 }
@@ -29,7 +29,7 @@ function wrong(error: Error, front = true): never {
 	if (!error) wrong(Error('没有提供错误'));
 	if (wrong.errorsNow.size) {
 		wrong.errorsNow.add(error);
-		if (!wrong.errorsNow.size) throw error;
+		if (wrong.errorsNow.size === 1) throw error;
 		const aErr = new AggregateError(wrong.errorsNow, '多个错误');
 		if (!wrong.pre.ele) {
 			wrong.errorsNow.clear();
@@ -127,7 +127,7 @@ onload = () => tryFn(() => {
 	// @ts-ignore
 	document.getElementsByName('from_input').forEach(n => n.value = location);
 	// @ts-ignore
-	document.getElementsByName('step').forEach(n => n.value = n.parentNode.parentNode.dataset.step);
+	document.getElementsByName('step').forEach(n => !n.value && (n.value = n.parentNode.parentNode.dataset.step));
 	setOnload.fns.forEach(tryFn);
 });
 /**
