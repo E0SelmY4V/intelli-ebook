@@ -7,7 +7,7 @@ type Tostrable = string | number | null | undefined | boolean;
  */
 function gid<K extends keyof HTMLElementTagNameMap>(id: string, tag: K): HTMLElementTagNameMap[K] {
 	const ele = document.getElementById(id) ?? wrong(getError('找不到:', id, tag));
-	if (ele.tagName.toLowerCase() !== tag) wrong(getError('错误的标签', id, tag));
+	if (ele.tagName.toLowerCase() !== tag) wrong(getError('错误的标签', id, tag, ele.tagName));
 	// @ts-ignore
 	return ele;
 }
@@ -30,7 +30,7 @@ function wrong(error: Error, front = true): never {
 	if (wrong.errorsNow.size) {
 		wrong.errorsNow.add(error);
 		if (wrong.errorsNow.size === 1) throw error;
-		const aErr = new AggregateError(wrong.errorsNow, '多个错误');
+		const aErr = new AggregateError(wrong.errorsNow, Array.from(wrong.errorsNow.values()).join('\n'));
 		if (!wrong.pre.ele) {
 			wrong.errorsNow.clear();
 			wrong(aErr);
@@ -79,7 +79,7 @@ function tryFn<T>(fn: () => T): T {
  * @param init 请求配置
  * @returns 请求结果
  */
-async function req(url: string | URL | Request, init: RequestInit | undefined): Promise<Response> {
+async function req(url: string | URL | Request, init?: RequestInit): Promise<Response> {
 	const r = await tryFn(() => fetch(url, init));
 	if (!r.ok) wrong(getError(
 		`${r.status} ${r.statusText}`,
@@ -125,7 +125,7 @@ const query = new URLSearchParams(window.location.search);
 onload = () => tryFn(() => {
 	// 初始化表单的状态标记
 	// @ts-ignore
-	document.getElementsByName('from_input').forEach(n => n.value = location);
+	document.getElementsByName('from').forEach(n => n.value = location);
 	// @ts-ignore
 	document.getElementsByName('step').forEach(n => !n.value && (n.value = n.parentNode.parentNode.dataset.step));
 	setOnload.fns.forEach(tryFn);
@@ -154,7 +154,7 @@ type FormStep = string | number;
 function showForm(step: FormStep) {
 	const stepStr = step.toString();
 	(Array
-		.from(document.getElementsByName('sign_div'))
+		.from(document.getElementsByName('stepping'))
 		.find(n => n.dataset.step === stepStr)
 		?? wrong(getError('没有对应步骤的表单: ', step))
 	).hidden = false;

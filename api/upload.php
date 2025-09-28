@@ -6,7 +6,9 @@ require_once __DIR__ . '/config.php';
 
 use \ScpoPHP\Db as Db;
 
-[$ret, $end] = ScpoPHP\Errpage::get_ret('api/upload.php', $_POST['from_input']);
+[$ret, $end] = ScpoPHP\Errpage::get_ret('api/upload.php', $_POST['from']);
+
+if (!session_start()) $ret('服务端无法使用 session');
 
 if ($_FILES['doc']['error'] !== UPLOAD_ERR_OK) $ret('获取不到上传的文件');
 

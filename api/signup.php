@@ -9,7 +9,7 @@ require_once __DIR__ . '/config.php';
 use ScpoPHP\Db as Db;
 use ScpoPHP\Str as Str;
 
-[$ret, $end] = ScpoPHP\Errpage::get_ret('api/signup.php', $_POST['from_input']);
+[$ret, $end] = ScpoPHP\Errpage::get_ret('api/signup.php', $_POST['from']);
 
 if (!session_start()) $ret('服务端无法使用 session');
 

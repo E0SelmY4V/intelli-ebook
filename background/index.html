@@ -9,9 +9,9 @@
 	</head>
 
 	<body>
-		<form id="upload_form" action="/api/upload.php" method="post" enctype="multipart/form-data">
-			<input type="file" name="doc" /><br />
-			<input type="text" hidden="hidden" name="from_input" />
+		<form action="/api/upload.php" method="post" enctype="multipart/form-data">
+			<input name="from" hidden />
+			<input name="doc" type="file" /><br />
 			<script></script>
 			<input type="submit" value="上传" /><br />
 		</form>
