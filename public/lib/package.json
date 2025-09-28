@@ -1,0 +1,11 @@
+{
+	"$schema": "https://json.schemastore.org/package",
+	"scripts": {
+		"build": "tsx build.ts",
+		"clean": "rimraf ../dist"
+	},
+	"devDependencies": {
+		"esbuild": "latest",
+		"tsx": "latest"
+	}
+}

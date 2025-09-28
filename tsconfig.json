@@ -1,27 +1,9 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig",
+	"extends": ["./tsbase.json"],
 	"compilerOptions": {
-		"module": "ESNext",
-		"moduleResolution": "Node10",
-		"target": "ESNext",
-		"noImplicitAny": true,
-		"noImplicitReturns": true,
-		"strict": true,
-		"strictBindCallApply": true,
-		"strictFunctionTypes": true,
-		"strictNullChecks": true,
-		"strictPropertyInitialization": true,
-		"alwaysStrict": true,
-		"noImplicitThis": true,
-		"noEmitOnError": true,
 		"declaration": false,
-		"resolveJsonModule": true,
-		"allowJs": true,
-		"skipLibCheck": true,
-		"noErrorTruncation": true,
-		"allowSyntheticDefaultImports": true,
-		"noEmit": true,
-		"checkJs": true
+		"noEmit": true
 	},
 	"include": ["**/*.js"]
 }

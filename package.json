@@ -1,5 +1,7 @@
 {
+	"$schema": "https://json.schemastore.org/package",
 	"name": "intelli-ebook-js",
+	"private": true,
 	"version": "0.1.0",
 	"description": "The js part of intelli-ebook",
 	"author": "e0selmy4v",
@@ -19,6 +21,7 @@
 		"colortape": "latest",
 		"tape": "latest",
 		"@types/tape": "latest",
+		"esbuild": "latest",
 		"typescript": "latest"
 	},
 	"type": "module",
@@ -27,7 +30,12 @@
 		"url": "git+https://github.com/E0SelmY4V/intelli-ebook.git"
 	},
 	"scripts": {
+		"runall": "pnpm -F=./public/lib",
 		"prepare": "husky",
+		"build": "pnpm runall build",
+		"clean": "pnpm runall clean",
+		"pretest": "tsc",
+		"test": "pnpm runall test",
 		"prefmt": "prettier -w .",
 		"fmt": "eslint . --fix",
 		"prelint": "prettier -c .",

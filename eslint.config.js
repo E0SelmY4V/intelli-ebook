@@ -16,6 +16,7 @@ const config = tseslint.config(
 				tsconfigRootDir: getDirname(import.meta.url),
 				project: [
 					'tsconfig.json',
+					'public/lib/tsconfig.json',
 				],
 			},
 		},
