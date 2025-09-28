@@ -4,6 +4,8 @@ import {
 	File,
 	ConsoleStdout,
 	PreopenDirectory,
+	Directory,
+	Inode,
 } from '@bjorn3/browser_wasi_shim';
 import pandocImpl from './pandoc';
 
@@ -15,8 +17,6 @@ declare global {
 
 async function getPandoc(wasmFile: Response | PromiseLike<Response>) {
 	const args = ['pandoc.wasm', '+RTS', '-H64m', '-RTS'];
-	const fileIn = new File(new Uint8Array(), { readonly: true });
-	const fileOut = new File(new Uint8Array(), { readonly: false });
 	const wasi = new WASI(
 		args,
 		[],
@@ -24,10 +24,7 @@ async function getPandoc(wasmFile: Response | PromiseLike<Response>) {
 			new OpenFile(new File(new Uint8Array(), { readonly: true })),
 			ConsoleStdout.lineBuffered(msg => console.log(`[WASI stdout] ${msg}`)),
 			ConsoleStdout.lineBuffered(msg => console.warn(`[WASI stderr] ${msg}`)),
-			new PreopenDirectory('/', new Map([
-				['in', fileIn],
-				['out', fileOut],
-			])),
+			getPandoc.fs,
 		],
 		{ debug: false },
 	);
@@ -74,13 +71,29 @@ async function getPandoc(wasmFile: Response | PromiseLike<Response>) {
 			argsStr,
 			new Uint8Array(getBuffer(), argsPtr, argsStr.length),
 		);
-		fileIn.data = typeof input === 'string' ? new TextEncoder().encode(input) : input;
+		getPandoc.fileIn.data = typeof input === 'string' ? new TextEncoder().encode(input) : input;
 		getFn('wasm_main')(argsPtr, argsStr.length);
-		return new TextDecoder('utf-8', { fatal: true }).decode(fileOut.data);
+		return getPandoc.fileOut.data.slice(0);
 	};
 }
 namespace getPandoc {
-	export const one = 1;
+	export const fileIn = new File(new Uint8Array(), { readonly: true });
+	export const fileOut = new File(new Uint8Array(), { readonly: false });
+	export const fs = new PreopenDirectory('/', new Map([
+		['in', fileIn],
+		['out', fileOut],
+	]));
+	export function getMedia(folder = 'media') {
+		const mediaNode = fs.dir.contents.get(folder);
+		if (!mediaNode || !(mediaNode instanceof Directory)) throw Error();
+		const medias = new Map();
+		for (const [name, file] of mediaNode.contents.entries()) {
+			if (!(file instanceof File)) throw Error();
+			medias.set(name, file);
+		}
+		mediaNode.contents.clear();
+		return medias;
+	}
 }
 export default getPandoc;
 

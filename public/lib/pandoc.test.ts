@@ -5,11 +5,15 @@ import { Readable } from 'stream';
 
 
 (async () => {
-	const docx = await fsp.readFile('../1 Limit 1.docx');
+	const docx1 = await fsp.readFile('../1 Limit 1.docx');
+	const docx2 = await fsp.readFile('../Derivaitve 1.docx');
 	const response = new Response(Readable.toWeb(fs.createReadStream('../pandoc.wasm')) as any, { headers: { 'content-type': 'application/wasm' } });
 	const pandoc = await getPandoc(response);
-	const md = pandoc('-f docx -t markdown --mathjax', docx);
-	console.log(md);
+	new TextDecoder('UTF-8').decode(pandoc('-f docx -t markdown --mathjax --extract-media=.', docx1));
+	console.dir(getPandoc.getMedia(), { depth: 1 });
+	new TextDecoder('UTF-8').decode(pandoc('-f docx -t markdown --mathjax --extract-media=.', docx2));
+	console.dir(getPandoc.getMedia(), { depth: 1 });
+	console.log(getPandoc.fs.dir.contents.get('media'));
 })();
 
 
