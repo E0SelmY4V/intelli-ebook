@@ -29,7 +29,7 @@
 		"url": "git+https://github.com/E0SelmY4V/intelli-ebook.git"
 	},
 	"scripts": {
-		"runall": "pnpm -F=./public/lib",
+		"runall": "pnpm -F=./public",
 		"prepare": "husky",
 		"build": "pnpm runall build",
 		"clean": "pnpm runall clean",

@@ -1,16 +1,16 @@
 import { build } from 'esbuild';
 
 build({
-	entryPoints: ['pandoc.ts'],
+	entryPoints: ['mods.ts'],
 	bundle: true,
 	sourcemap: true,
 	minify: true,
-	outdir: '../dist',
+	outdir: 'dist',
 });
 
 build({
 	entryPoints: ['common.ts'],
-	outdir: '../dist',
+	outdir: 'dist',
 	format: 'esm',
 });
 

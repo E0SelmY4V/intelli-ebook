@@ -9,6 +9,7 @@
 	"devDependencies": {
 		"esbuild": "latest",
 		"@bjorn3/browser_wasi_shim": "0.3.0",
+		"resumablejs": "latest",
 		"tsx": "latest"
 	}
 }

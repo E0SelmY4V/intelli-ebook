@@ -7,15 +7,9 @@ import {
 	wasi,
 	WASI,
 } from '@bjorn3/browser_wasi_shim';
-import PandocImpl from './pandoc';
 
-declare global {
-	namespace globalThis {
-		export import Pandoc = PandocImpl;
-	}
-}
-
-class Pandoc {
+export default class Pandoc {
+	static args = ['pandoc.wasm', '+RTS', '-H64m', '-RTS'];
 	protected readonly fileIn = new File(new Uint8Array(), { readonly: true });
 	protected readonly fileOut = new File(new Uint8Array(), { readonly: false });
 	protected readonly fs = new PreopenDirectory('/', new Map([
@@ -125,10 +119,4 @@ class Pandoc {
 		return this.parseSync(...arg);
 	}
 }
-namespace Pandoc {
-	export const args = ['pandoc.wasm', '+RTS', '-H64m', '-RTS'];
-}
-export default Pandoc;
-
-globalThis.Pandoc = Pandoc;
 

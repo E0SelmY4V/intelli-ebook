@@ -1,10 +1,10 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig",
 	"compilerOptions": {
-		"outDir": "../dist",
+		"outDir": "dist",
 		"declaration": true,
 		"emitDeclarationOnly": true
 	},
-	"extends": ["../../tsbase.json"],
+	"extends": ["../tsbase.json"],
 	"include": ["**/*.ts"]
 }
