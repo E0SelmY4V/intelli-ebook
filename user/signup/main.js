@@ -4,7 +4,7 @@ initCallbackHandler({
 	start: ['email'],
 	no_email: ['email', ['没输邮箱', '请重输']],
 	wrong_email: ['email', ([email]) => showInfo('邮箱格式错误', `<code>${email ?? wrong(Error('缺少邮箱信息'))}</code> 不是一个有效的邮箱`)],
-	email_failed: ['email', ['邮件发送失败', '请你重新获取邮件']],
+	email_failed: ['email', ([info]) => showInfo('邮件发送失败', '请你重新获取邮件<br />错误代码: <pre>' + info + '</pre>')],
 	code_send: ['code'],
 	code_droped: ['email', ['代码未发送', '请你重新获取邮件']],
 	no_code: ['code', ['没输代码', '请重输']],

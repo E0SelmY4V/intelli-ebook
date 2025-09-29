@@ -36,13 +36,12 @@ switch ($_POST['step']) {
 			$_SESSION['signup_code_exp'] = time() + 60 * 15;
 			$_SESSION['signup_code'] = Str::rand(6);
 		}
-		if (
-			!ScpoPHP\Email::send(
-				'您的邮箱验证码',
-				"您的邮箱验证码为<h1>{$_SESSION['signup_code']}</h1>若您没有在农大智能电子教材网注册或找回密码，请忽略这封邮件",
-				$email
-			)
-		) $end('["email_failed"]');
+		$n = ScpoPHP\Email::send(
+			'您的邮箱验证码',
+			"您的邮箱验证码为<h1>{$_SESSION['signup_code']}</h1>若您没有在农大智能电子教材网注册或找回密码，请忽略这封邮件",
+			$email
+		);
+		if ($n !== true) $end(json_encode(['email_failed', $n]));
 		$_SESSION['signup_email'] = $email;
 		$end('["code_send"]');
 	case 'code':
