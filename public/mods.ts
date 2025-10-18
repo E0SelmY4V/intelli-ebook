@@ -11,6 +11,6 @@ declare global {
 export { default as Pandoc } from './lib/pandoc';
 export { default as Resumable } from 'resumablejs';
 
-globalThis.mods = self;
+globalThis.mods = localSelf;
 
 
