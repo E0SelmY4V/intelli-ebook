@@ -3,4 +3,6 @@ self/*
 pnpm-lock.yaml
 node_modules
 public/dist
+api/upload/files
+api/upload/temp
 
