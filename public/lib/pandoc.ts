@@ -1,7 +1,7 @@
 import {
 	ConsoleStdout,
-	Directory,
-	File,
+	Directory as WasiDir,
+	File as WasiFile,
 	OpenFile,
 	PreopenDirectory,
 	wasi,
@@ -10,8 +10,8 @@ import {
 
 export default class Pandoc {
 	static args = ['pandoc.wasm', '+RTS', '-H64m', '-RTS'];
-	protected readonly fileIn = new File(new Uint8Array(), { readonly: true });
-	protected readonly fileOut = new File(new Uint8Array(), { readonly: false });
+	protected readonly fileIn = new WasiFile(new Uint8Array(), { readonly: true });
+	protected readonly fileOut = new WasiFile(new Uint8Array(), { readonly: false });
 	protected readonly fs = new PreopenDirectory('/', new Map([
 		['in', this.fileIn],
 		['out', this.fileOut],
@@ -28,7 +28,7 @@ export default class Pandoc {
 			Pandoc.args,
 			[],
 			[
-				new OpenFile(new File(new Uint8Array(), { readonly: true })),
+				new OpenFile(new WasiFile(new Uint8Array(), { readonly: true })),
 				ConsoleStdout.lineBuffered(out),
 				ConsoleStdout.lineBuffered(err),
 				this.fs,
@@ -86,13 +86,14 @@ export default class Pandoc {
 		this.insObj = { instance, getFn, getBuffer, getDataView };
 	}
 
-	protected getMedia(mediaFolder: string): Map<string, Uint8Array> {
+	protected getMedia(mediaFolder: string): File[] {
 		const { ret, inode_obj: mediaNode } = this.fs.path_lookup(mediaFolder, 0);
-		if (ret !== wasi.ERRNO_SUCCESS || !(mediaNode instanceof Directory)) throw Error(mediaFolder);
-		const medias = new Map<string, Uint8Array>();
+		if (ret !== wasi.ERRNO_SUCCESS || !(mediaNode instanceof WasiDir)) throw Error(mediaFolder);
+		const medias: File[] = [];
 		for (const [name, file] of mediaNode.contents.entries()) {
-			if (!(file instanceof File)) throw Error(name);
-			medias.set(name, file.data);
+			if (!(file instanceof WasiFile)) throw Error(name);
+			const { byteOffset, byteLength } = file.data;
+			medias.push(new File([file.data.slice(byteOffset, byteOffset + byteLength)], `media/${name}`));
 		}
 		mediaNode.contents.clear();
 		return medias;
@@ -107,7 +108,8 @@ export default class Pandoc {
 		);
 		this.fileIn.data = typeof input === 'string' ? new TextEncoder().encode(input) : input;
 		getFn('wasm_main')(argsPtr, argsStr.length);
-		const data = this.fileOut.data;
+		const { byteOffset, byteLength } = this.fileOut.data;
+		const data = this.fileOut.data.slice(byteOffset, byteOffset + byteLength);
 		this.fileOut.data = new Uint8Array();
 		this.fileIn.data = new Uint8Array();
 		const medias = this.getMedia(mediaFolder);
