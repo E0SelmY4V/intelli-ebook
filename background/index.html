@@ -3,17 +3,34 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 		<script src="/public/dist/common.js"></script>
+		<script src="/public/dist/mods.js"></script>
 		<script src="main.js"></script>
 		<link rel="stylesheet" href="./style.css" />
 		<link rel="stylesheet" href="/public/style.css" />
 	</head>
 
 	<body>
-		<form action="/api/upload.php" method="post" enctype="multipart/form-data">
-			<input name="from" hidden />
-			<input name="doc" type="file" /><br />
-			<script></script>
-			<input type="submit" value="上传" /><br />
+		<form action="/api/upload/page.php" method="post" hidden>
+			<input name="from" />
+			<input name="step" value="auth" />
+			<input id="status_check_input" type="submit" />
 		</form>
+		<form action="/api/upload/page.php" method="post" hidden>
+			<input name="from" />
+			<input name="step" value="uploaded" />
+			<input id="uploaded_callback_input" type="submit" />
+		</form>
+		<div data-step="upload" name="stepping" hidden>
+			<h1>请上传你的 docx 文档</h1>
+			<div>
+				<input type="file" id="doc_input" /><br />
+				<button id="upload_button">上传</button><br />
+				<progress id="upload_progress" value="0" max="100"></progress>
+			</div>
+		</div>
+		<div data-step="success" name="stepping" hidden>
+			<h1>上传成功</h1>
+			请查看<a id="succ_url_a">此处</a>来欣赏你上传的内容
+		</div>
 	</body>
 </html>
