@@ -143,15 +143,20 @@ namespace setOnload {
 
 
 /**
+ * 表示不需要显示表单
+ */
+const noForm = Symbol('no form');
+/**
  * 表单标识，写在 data-step 标签里
  */
-type FormStep = string | number;
+type FormStep = string | number | typeof noForm;
 /**
  * 在多表单页面里显示特定表单
  * 必须在 onload 里用
  * @param step 表单标识
  */
 function showForm(step: FormStep) {
+	if (step === noForm) return;
 	const stepStr = step.toString();
 	(Array
 		.from(document.getElementsByName('stepping'))
