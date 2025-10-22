@@ -16,11 +16,11 @@ switch ($_POST['step']) {
 		if (!isset($_SESSION['uid'])) $ret('你没登录');
 		$fid = uniqid('', true);
 		$_SESSION['fid'] = $fid;
-		$end(json_encode(['authed', $fid]));
+		$end(['authed', $fid]);
 	case 'uploaded':
 		if (!isset($_SESSION['fid'])) $ret('不知道上传的是什么');
 		$fid = $_SESSION['fid'];
-		if (!is_dir(FILE_DIR)) $end('["uploadFailed"]');
+		if (!is_dir(FILE_DIR)) $end(['uploadFailed']);
 		if (!isset($_SESSION['uid'])) {
 			$ret('你没登录');
 		}
@@ -30,9 +30,9 @@ switch ($_POST['step']) {
 			'fid' => $fid,
 		], 'metas', true);
 		if (!$cid) {
-			$end('["registFailed"]');
+			$end(['registFailed']);
 		}
-		$end(json_encode(['success', $cid]));
+		$end(['success', $cid]);
 	default:
 		$ret('当前进行到上传的第几步了？');
 }

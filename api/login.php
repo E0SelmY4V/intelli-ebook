@@ -12,10 +12,10 @@ if (!session_start()) $ret('服务端无法使用 session');
 
 switch ($_POST['step']) {
 	case 'check':
-		$end($_SESSION['uid'] ? "[\"succ\", {$_SESSION['uid']}]" : '["checked"]');
+		$end($_SESSION['uid'] ? ['succ', $_SESSION['uid']] : ['checked']);
 	case 'login':
-		if (!($id = $_POST['id'])) $end('["no_id"]');
-		if (!($pw = $_POST['password'])) $end('["no_password"]');
+		if (!($id = $_POST['id'])) $end(['no_id']);
+		if (!($pw = $_POST['password'])) $end(['no_password']);
 		$f = true;
 		foreach (
 			Db::select(
@@ -29,13 +29,13 @@ switch ($_POST['step']) {
 				continue;
 			}
 			$_SESSION['uid'] = $uid;
-			$end("[\"succ\", $uid]");
+			$end(['succ', $uid]);
 		}
-		if ($f) $end('["no_user"]');
-		$end('["wrong_password"]');
+		if ($f) $end(['no_user']);
+		$end(['wrong_password']);
 	case 'logout':
 		unset($_SESSION['uid']);
-		$end('["checked"]');
+		$end(['checked']);
 	default:
 		$ret('当前在登录还是登出？');
 }
