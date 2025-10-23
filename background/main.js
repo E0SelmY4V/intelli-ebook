@@ -22,12 +22,16 @@ const uploader = new mods.Resumable({
 	target: '/api/upload/trans.php',
 	// @ts-ignore
 	testTarget: '/api/upload/check.php',
-	chunkSize: 800 * 1024, // 800 KB
+	chunkSize: 1600 * 1024, // 800 KB
 	forceChunkSize: true,
 	simultaneousUploads: 10,
 	testChunks: true,
 });
-uploader.on('progress', () => gid('upload_progress', 'progress').value = uploader.progress() * 100);
+uploader.on('progress', () => {
+	const p = uploader.progress();
+	gid('upload_progress', 'progress').value = p * 100;
+	gid('upload_count_div', 'div').innerText = (Math.round(p * 10000) / 100) + '%';
+});
 uploader.on('complete', () => gid('uploaded_callback_input', 'input').click());
 uploader.on('filesAdded', () => uploader.upload());
 
