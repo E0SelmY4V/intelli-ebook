@@ -50,6 +50,7 @@ function wrong(error: Error, front = true): never {
 	div.id = 'wrong_div';
 	const pre = wrong.pre.ele = document.createElement('pre');
 	pre.innerText = error.toString();
+	pre.id = 'wrong_explain_pre';
 	div.appendChild(pre);
 	document.children[0].appendChild(div);
 	throw error;
