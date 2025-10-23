@@ -9,6 +9,7 @@ initCallbackHandler({
 	code_droped: ['email', ['代码未发送', '请你重新获取邮件']],
 	no_code: ['code', ['没输代码', '请重输']],
 	code_exped: ['email', ['代码已过期', '请你重新获取邮件']],
+	email_exped: ['email', ['邮箱信息已过期', '请你重新获取邮件']],
 	wrong_code: ['code', ['代码错误', '请再次输入']],
 	signup: ['signup'],
 	findback: ['findback', ({ name, signup_time }) => {

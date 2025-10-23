@@ -11,6 +11,8 @@ use \ScpoPHP\Db as Db;
 
 if (!session_start()) $ret('服务端无法使用 session');
 
+if (!isset($_POST['step'])) $ret('没带请求');
+
 switch ($_POST['step']) {
 	case 'auth':
 		if (!isset($_SESSION['uid'])) $ret('你没登录');
@@ -20,7 +22,7 @@ switch ($_POST['step']) {
 	case 'uploaded':
 		if (!isset($_SESSION['fid'])) $ret('不知道上传的是什么');
 		$fid = $_SESSION['fid'];
-		if (!is_dir(FILE_DIR)) $end(['uploadFailed']);
+		if (!is_dir(FILE_DIR . "/$fid")) $end(['uploadFailed']);
 		if (!isset($_SESSION['uid'])) {
 			$ret('你没登录');
 		}

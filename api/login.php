@@ -10,12 +10,14 @@ use ScpoPHP\Db as Db;
 
 if (!session_start()) $ret('服务端无法使用 session');
 
+if (!isset($_POST['step'])) $ret('没带请求');
+
 switch ($_POST['step']) {
 	case 'check':
-		$end($_SESSION['uid'] ? ['succ', $_SESSION['uid']] : ['checked']);
+		$end(isset($_SESSION['uid']) ? ['succ', $_SESSION['uid']] : ['checked']);
 	case 'login':
-		if (!($id = $_POST['id'])) $end(['no_id']);
-		if (!($pw = $_POST['password'])) $end(['no_password']);
+		if (!isset($_POST['id']) || !($id = $_POST['id'])) $end(['no_id']);
+		if (!isset($_POST['password']) ||  !($pw = $_POST['password'])) $end(['no_password']);
 		$f = true;
 		foreach (
 			Db::select(
