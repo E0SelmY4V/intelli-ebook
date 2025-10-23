@@ -8,6 +8,7 @@
 	"devDependencies": {
 		"esbuild": "latest",
 		"@bjorn3/browser_wasi_shim": "0.3.0",
+		"typebox": "latest",
 		"resumablejs": "latest",
 		"tsx": "latest"
 	}

@@ -5,10 +5,13 @@ let fid = null;
 
 initCallbackHandler({
 	start: ['upload', () => gid('status_check_input', 'input').click()],
-	authed: ['upload', ([fidGot]) => fid = fidGot],
+	authed: ['upload', fidGot => fid = fidGot],
 	uploadFailed: [noForm, ['上传失败', '请重新上传']],
 	registFailed: ['upload', ['无法注册此内容', '请重新上传']],
-	success: ['success', ([cid]) => gid('succ_url_a', 'a').href = `/ebook/?cid=${cid}`],
+	success: ['success', cid => gid('succ_url_a', 'a').href = `/ebook/?cid=${cid}`],
+}, {
+	authed: [Type.String()],
+	success: [Type.Number()],
 });
 
 const pandoc = new mods.Pandoc(

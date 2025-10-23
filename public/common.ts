@@ -182,31 +182,54 @@ function showForm(step: FormStep) {
 type CbCode = string | number;
 /**使用回调给的表单 */
 const cbForm = Symbol('Use callback form');
+type Statics<
+	T,
+	R extends any[] = [],
+> = T extends readonly [infer N extends Type.TSchema, ...infer L extends readonly Type.TSchema[]]
+	? Statics<L, [...R, Type.Static<N>]>
+	: R;
+type CbArgTypes<K extends CbCode> = Partial<Record<K, readonly Type.TSchema[]>>;
 /**状态规则 */
-type CbMap = Record<
-	CbCode,
-	[
+type CbMap<K extends CbCode, T extends CbArgTypes<K>> = {
+	[I in K]: [
 		cbForm: FormStep | typeof cbForm,
-		action?: Parameters<typeof showInfo> | ((cbData: any[]) => void),
+		action?: (I extends keyof T
+			? ((...cbData: Statics<T[I]>) => void)
+			: ((() => void) | Parameters<typeof showInfo>)
+		),
 	]
->;
+};
 /**
  * 获得页面状态管理器
  * @param cbs 各状态对应动作
  * @param initCode 起始状态
  */
-function initCallbackHandler(cbs: CbMap, initCode: CbCode = 'start') {
+function initCallbackHandler<
+	K extends CbCode,
+	const T extends CbArgTypes<K> = {},
+>(
+	cbs: CbMap<K, T>,
+	argTypes: T | null = null,
+	initCode: CbCode = 'start',
+) {
+	function assertK(k: CbCode): asserts k is K {
+		if (!(k in cbs)) wrong(Error(`未知的状态码: ${JSON.stringify(k)}`));
+	}
 	const infoRaw = query.get('info');
 	const callback: [CbCode | [code: CbCode, infoForm: FormStep], ...any[]] = JSON.parse(infoRaw ?? `["${initCode}"]`);
 	setOnload(() => {
 		const [infoHead, ...info] = callback;
 		const [code, infoForm = null] = Array.isArray(infoHead) ? infoHead : [infoHead];
-		const [localForm, action] = cbs[code] ?? wrong(getError('未知回调代码: ', infoRaw));
+		assertK(code);
+		const [localForm, action] = cbs[code];
 		showForm(
 			(localForm === cbForm ? infoForm : localForm)
 			?? wrong(getError('没有指定显示哪一步表单: ', code, infoRaw)),
 		);
-		if (typeof action === 'function') action(info);
-		else if (action) showInfo(...action);
+		if (typeof action === 'function') {
+			const tup = Type.Tuple(argTypes?.[code]?.slice(0) ?? []);
+			if (!mods.Value.Check(tup, info)) wrong(getError(`${code} 的回调参数类型错误`, JSON.stringify(info, null, 2)));
+			action(...info);
+		} else if (action) showInfo(...(action as [string, string]));
 	});
 }
