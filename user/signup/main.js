@@ -20,8 +20,8 @@ initCallbackHandler({
 	no_username: ['signup', ['没输用户名', '请重输']],
 	long_username: ['signup', ['用户名太长', '太长了，重输']],
 	had_name: ['signup', ['用户名重复', '已经有人叫这个名字了，请重输']],
-	no_password: [void 0, ['密码不能为空', '请重输']],
-	wrong_password: [void 0, ['两次密码不相同', '请重输']],
+	no_password: [cbForm, ['密码不能为空', '请重输']],
+	wrong_password: [cbForm, ['两次密码不相同', '请重输']],
 	succ: ['ok', ([uid]) => {
 		gid('id_a', 'a').innerHTML = uid ?? wrong(Error('缺少用户编号'));
 	}],

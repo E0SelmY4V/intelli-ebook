@@ -144,13 +144,9 @@ namespace setOnload {
 }
 
 
-/**
- * 表示不需要显示表单
- */
+/**表示不需要显示表单 */
 const noForm = Symbol('no form');
-/**
- * 表单标识，写在 data-step 标签里
- */
+/**表单标识，写在 data-step 标签里 */
 type FormStep = string | number | typeof noForm;
 /**
  * 在多表单页面里显示特定表单
@@ -167,14 +163,15 @@ function showForm(step: FormStep) {
 	).hidden = false;
 }
 
-/**
- * 页面回调状态名
- */
+/**页面回调状态名 */
 type CbCode = string | number;
+/**使用回调给的表单 */
+const cbForm = Symbol('Use callback form');
+/**状态规则 */
 type CbMap = Record<
 	CbCode,
 	[
-		cbForm?: FormStep,
+		cbForm: FormStep | typeof cbForm,
 		action?: Parameters<typeof showInfo> | ((cbData: any[]) => void),
 	]
 >;
@@ -189,8 +186,11 @@ function initCallbackHandler(cbs: CbMap, initCode: CbCode = 'start') {
 	setOnload(() => {
 		const [infoHead, ...info] = callback;
 		const [code, infoForm = null] = Array.isArray(infoHead) ? infoHead : [infoHead];
-		const [cbForm, action] = cbs[code] ?? wrong(getError('未知回调代码: ', infoRaw));
-		showForm(infoForm ?? cbForm ?? wrong(getError('没有指定显示哪一步表单: ', code, infoRaw)));
+		const [localForm, action] = cbs[code] ?? wrong(getError('未知回调代码: ', infoRaw));
+		showForm(
+			(localForm === cbForm ? infoForm : localForm)
+			?? wrong(getError('没有指定显示哪一步表单: ', code, infoRaw)),
+		);
 		if (typeof action === 'function') action(info);
 		else if (action) showInfo(...action);
 	});
