@@ -33,6 +33,7 @@
 		"prepare": "husky",
 		"build": "pnpm runall build",
 		"clean": "pnpm runall clean",
+		"serve": "frankenphp php-server --listen=127.0.0.1:8889",
 		"pretest": "tsc",
 		"test": "pnpm runall test",
 		"prefmt": "prettier -w .",
