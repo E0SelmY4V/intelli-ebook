@@ -29,7 +29,7 @@ initCallbackHandler({
 }, {
 	wrong_email: [Type.String()],
 	email_failed: [Type.String()],
-	findback: [Type.Object({ id: Type.Number(), name: Type.String(), signup_time: Type.String() })],
+	findback: [Type.Object({ id: Type.String(), name: Type.String(), signup_time: Type.String() })],
 	succ: [Type.Number()],
 });
 

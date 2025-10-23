@@ -18,13 +18,11 @@
 				if (!finded) {
 					const cid = query.get('cid') ?? wrong(Error('不知道用户要看什么章节'));
 					gid('find_cid_input', 'input').value = cid;
-					document.getElementsByName('from').forEach(n => n.value = location);
+					document.getElementsByName('from').forEach((n) => (n.value = location));
 					if (!query.has('fid')) gid('find_submit_input', 'input').click();
 				}
 			</script>
 		</form>
-		<div data-step="main" name="stepping" hidden>
-			asdsasd
-		</div>
+		<div data-step="main" name="stepping" hidden>asdsasd</div>
 	</body>
 </html>

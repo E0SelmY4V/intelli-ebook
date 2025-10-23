@@ -88,7 +88,7 @@ switch ($_POST['step']) {
 
 		[$hashed_pw, $salt] = $check_pw('signup');
 
-		$uid = $_SESSION['uid'] = Db::insert([
+		$uid = (int)$_SESSION['uid'] = Db::insert([
 			'name' => $name,
 			'password' => $hashed_pw,
 			'salt' => $salt,

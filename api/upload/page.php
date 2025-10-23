@@ -27,7 +27,7 @@ switch ($_POST['step']) {
 			$ret('你没登录');
 		}
 		$uid = $_SESSION['uid'];
-		$cid = Db::insert([
+		$cid = (int)Db::insert([
 			'uid' => $uid,
 			'fid' => $fid,
 		], 'metas', true);

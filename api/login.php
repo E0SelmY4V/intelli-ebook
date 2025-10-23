@@ -26,6 +26,7 @@ switch ($_POST['step']) {
 				'users',
 			) as [$uid, $hashed_pw, $salt]
 		) {
+			$uid = (int)$uid;
 			if (hash("sha256", $pw . $salt, true) !== $hashed_pw) {
 				$f = false;
 				continue;
