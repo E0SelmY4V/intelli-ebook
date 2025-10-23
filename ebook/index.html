@@ -8,9 +8,23 @@
 	</head>
 
 	<body>
-		<div id="view_div"></div>
-		<script>
-			getBookNow().catch(wrong);
-		</script>
+		<form action="/api/ebook.php" method="post" hidden>
+			<input name="from" />
+			<input name="step" value="find" />
+			<input name="cid" id="find_cid_input" />
+			<input id="find_submit_input" type="submit" />
+			<script>
+				const finded = 'id' in (JSON.parse(query.get('info') ?? '[]')?.[1] ?? {});
+				if (!finded) {
+					const cid = query.get('cid') ?? wrong(Error('不知道用户要看什么章节'));
+					gid('find_cid_input', 'input').value = cid;
+					document.getElementsByName('from').forEach(n => n.value = location);
+					if (!query.has('fid')) gid('find_submit_input', 'input').click();
+				}
+			</script>
+		</form>
+		<div data-step="main" name="stepping" hidden>
+			asdsasd
+		</div>
 	</body>
 </html>
