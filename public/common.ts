@@ -1,3 +1,5 @@
+/// <reference path="./mods.ts" />
+
 type Tostrable = string | number | null | undefined | boolean;
 
 /**
@@ -58,6 +60,19 @@ function wrong(error: Error, front = true): never {
 namespace wrong {
 	export const errorsNow = new Set<Error>();
 	export const pre: { ele: HTMLPreElement | null } = { ele: null };
+}
+
+/**当前所在的 script 标签 */
+const eleNow = document.currentScript ?? wrong(Error('拿不到当前所在 script 标签'));
+
+if (!('mods' in globalThis)) {
+	const insJs = (src: string) => {
+		const modsEle = document.createElement('script');
+		modsEle.src = src;
+		eleNow.parentNode?.insertBefore(modsEle, eleNow);
+		return modsEle;
+	};
+	insJs('/public/dist/mods.js').onload = () => insJs('main.js');
 }
 
 /**

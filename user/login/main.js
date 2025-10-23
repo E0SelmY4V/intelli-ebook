@@ -1,4 +1,4 @@
-/// <reference path="../../public/dist/common.d.ts" />
+/// <reference path="../../public/common.ts" />
 
 
 initCallbackHandler({

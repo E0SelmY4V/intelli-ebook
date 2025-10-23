@@ -1,5 +1,4 @@
-/// <reference path="public/dist/mods.d.ts" />
-/// <reference path="public/dist/common.d.ts" />
+/// <reference path="public/common.ts" />
 
 setOnload(() => {
 	const r = new mods.Resumable({

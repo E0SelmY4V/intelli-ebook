@@ -1,7 +1,6 @@
 {
 	"$schema": "https://json.schemastore.org/package",
 	"scripts": {
-		"prebuild": "tsc",
 		"build": "tsx build.ts",
 		"test": "tsc --noEmit",
 		"clean": "rimraf ../dist"
