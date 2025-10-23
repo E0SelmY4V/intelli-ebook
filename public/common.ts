@@ -82,8 +82,9 @@ function tryFn<T>(fn: () => T): T {
 async function req(url: string | URL | Request, init?: RequestInit): Promise<Response> {
 	const r = await tryFn(() => fetch(url, init));
 	if (!r.ok) wrong(getError(
-		`${r.status} ${r.statusText}`,
+		`req in ${url} with ${JSON.stringify(init ?? null)}`,
 		'',
+		`${r.status} ${r.statusText}`,
 		Array.from(r.headers.entries()).map(([k, v]) => `${k}: ${v};`)
 			.join('\n'),
 		await r.text(),
