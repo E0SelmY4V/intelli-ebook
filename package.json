@@ -6,22 +6,21 @@
 	"description": "The js part of intelli-ebook",
 	"author": "e0selmy4v",
 	"devDependencies": {
-		"husky": "latest",
-		"prettier": "^3.3.3",
-		"globals": "^15.13.0",
-		"typescript-eslint": "^8.17.0",
-		"eslint": "^9.14.0",
-		"@eslint/js": "^9.16.0",
-		"@eslint/markdown": "^6.2.1",
-		"@types/eslint": "^9.6.1",
-		"@types/eslint__js": "^8.42.3",
-		"eslint-config-accurtype-style": "^0.2.3",
-		"rimraf": "latest",
-		"esm-entry": "latest",
-		"colortape": "latest",
-		"tape": "latest",
+		"@eslint/js": "latest",
+		"@eslint/markdown": "latest",
+		"@types/eslint": "latest",
 		"@types/tape": "latest",
-		"typescript": "latest"
+		"colortape": "latest",
+		"eslint": "latest",
+		"eslint-config-accurtype-style": "latest",
+		"esm-entry": "latest",
+		"globals": "latest",
+		"husky": "latest",
+		"prettier": "latest",
+		"rimraf": "latest",
+		"tape": "latest",
+		"typescript": "latest",
+		"typescript-eslint": "latest"
 	},
 	"type": "module",
 	"repository": {
@@ -39,7 +38,8 @@
 		"prefmt": "prettier -w .",
 		"fmt": "eslint . --fix",
 		"prelint": "prettier -c .",
-		"lint": "eslint ."
+		"lint": "eslint .",
+		"ci": "pnpm lint & pnpm test"
 	},
 	"prettier": {
 		"printWidth": 200,

@@ -1,11 +1,12 @@
 /**@import { ConfigArray } from 'typescript-eslint'; */
 import eslint from '@eslint/js';
+import { defineConfig } from 'eslint/config';
 import accurtypeStyle from 'eslint-config-accurtype-style';
 import { getDirname } from 'esm-entry';
 import tseslint from 'typescript-eslint';
 
 /**@type {ConfigArray} */
-const config = tseslint.config(
+const config = defineConfig(
 	...accurtypeStyle,
 	eslint.configs.recommended,
 	...tseslint.configs.stylisticTypeChecked,

@@ -6,11 +6,14 @@ build({
 	sourcemap: true,
 	minify: true,
 	outdir: 'dist',
+	treeShaking: true,
 });
 
 build({
 	entryPoints: ['common.ts'],
 	outdir: 'dist',
 	format: 'esm',
+	minifySyntax: true,
+	minifyWhitespace: true,
 });
 

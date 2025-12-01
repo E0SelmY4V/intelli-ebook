@@ -185,10 +185,10 @@ const cbForm = Symbol('Use callback form');
 type Statics<
 	T,
 	R extends any[] = [],
-> = T extends readonly [infer N extends Type.TSchema, ...infer L extends readonly Type.TSchema[]]
-	? Statics<L, [...R, Type.Static<N>]>
+> = T extends readonly [infer N extends TSchema, ...infer L extends readonly TSchema[]]
+	? Statics<L, [...R, Static<N>]>
 	: R;
-type CbArgTypes<K extends CbCode> = Partial<Record<K, readonly Type.TSchema[]>>;
+type CbArgTypes<K extends CbCode> = Partial<Record<K, readonly TSchema[]>>;
 /**状态规则 */
 type CbMap<K extends CbCode, T extends CbArgTypes<K>> = {
 	[I in K]: [
@@ -228,7 +228,7 @@ function initCallbackHandler<
 		);
 		if (typeof action === 'function') {
 			const tup = Type.Tuple(argTypes?.[code]?.slice(0) ?? []);
-			if (!mods.Value.Check(tup, info)) wrong(getError(`${code} 的回调参数类型错误`, JSON.stringify(info, null, 2)));
+			if (!Value.Check(tup, info)) wrong(getError(`${code} 的回调参数类型错误`, JSON.stringify(info, null, 2)));
 			action(...info);
 		} else if (action) showInfo(...(action as [string, string]));
 	});

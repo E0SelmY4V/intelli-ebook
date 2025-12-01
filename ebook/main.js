@@ -15,7 +15,7 @@ initCallbackHandler({
 });
 
 /**
- * @param {Type.Static<typeof findedObjType>} finded
+ * @param {Static<typeof findedObjType>} finded
  */
 async function render({ fid }) {
 	const res = await req(`/api/upload/files/${fid}/index.json`);

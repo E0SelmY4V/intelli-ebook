@@ -3,24 +3,36 @@
  */
 declare module './mods';
 
-import Type from 'typebox';
-import * as self from './mods';
+import * as TypeOri from 'typebox';
+import * as ValueOri from 'typebox/value';
+import * as Mods from './mods';
 
-import localSelf = self;
-import localType = Type;
+namespace TypeImported {
+	export import Object = TypeOri.Object;
+	export import String = TypeOri.String;
+	export import Number = TypeOri.Number;
+	export import Tuple = TypeOri.Tuple;
+}
+
+namespace ValueImported {
+	export import Check = ValueOri.Check;
+}
 
 declare global {
 	namespace globalThis {
-		export import mods = localSelf;
-		export import Type = localType;
+		export import mods = Mods;
+		export import Type = TypeImported;
+		export import Value = ValueImported;
+		export import TSchema = TypeOri.TSchema;
+		export import Static = TypeOri.Static;
+
 	}
 }
-
-export { default as Pandoc } from './lib/pandoc';
 export { default as Resumable } from 'resumablejs';
-export { default as Value } from 'typebox/value';
+export { default as Pandoc } from './lib/pandoc';
 
-globalThis.mods = localSelf;
-globalThis.Type = localType;
+globalThis.mods = Mods;
+globalThis.Type = TypeImported;
+globalThis.Value = ValueImported;
 
 
