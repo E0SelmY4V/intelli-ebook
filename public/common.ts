@@ -89,6 +89,44 @@ function tryFn<T>(fn: () => T): T {
 	}
 }
 
+/**
+ * 获得任意东西的所有属性，包括原型链上的，但除了 `Object.prototype`
+ * @param n 任意东西
+ * @returns 包含所有属性的对象
+ */
+function getAllProp(n: unknown) {
+	const m = Object.create(null) as getAllProp.PropObj;
+	const ori = n;
+	while (n && n !== Object.prototype) {
+		getAllProp.getProp(n, m, ori);
+		n = Reflect.getPrototypeOf(n);
+	}
+	return m;
+}
+namespace getAllProp {
+	export type PropObj = Record<symbol | string, unknown>;
+	class PropError extends Error {
+		constructor(name: keyof PropObj, e: unknown) {
+			const cause = JSON.stringify(e instanceof Error ? e.message : e);
+			const msg = `can't get ${name.toString()} cause ${cause}`;
+			super(msg, { cause });
+		}
+	}
+	export function getProp(n: any, m: PropObj, ori: any) {
+		for (const name of Reflect.ownKeys(n)) {
+			if (name in m && !(m[name] instanceof PropError)) continue;
+			try {
+				const d = Reflect.getOwnPropertyDescriptor(n, name);
+				if (!d) m[name] = n[name];
+				else if (d.get) m[name] = d.get.call(ori);
+				else m[name] = d.value;
+			} catch (e) {
+				m[name] = new PropError(name, e);
+			}
+		}
+	}
+}
+
 /**更安全的 fetch ，可以在出错时显示大红色错误界面 */
 function fetchSafe(...[url, init]: Parameters<typeof fetch>) {
 	return fetchSafe.fetch(url, init).catch(wrong);
