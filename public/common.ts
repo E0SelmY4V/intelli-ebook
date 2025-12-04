@@ -15,6 +15,28 @@ function gid<K extends keyof HTMLElementTagNameMap>(id: string, tag: K): HTMLEle
 }
 
 /**
+ * 方便地获得一个元素
+ * @param tag 元素的标签
+ */
+function gele<K extends keyof HTMLElementTagNameMap>(
+	tag: K,
+	props: Readonly<Partial<(HTMLElementTagNameMap[K] & { nodes: readonly HTMLElement[] }) | Record<string, null>>>,
+): HTMLElementTagNameMap[K] {
+	const ele = document.createElement(tag);
+	for (const key of Object.keys(props) as (keyof HTMLElement)[]) {
+		const prop = props[key] ?? null;
+		if (prop !== null) try {
+			// @ts-ignore
+			ele[key] = prop;
+		} catch (err) {
+			wrong(err);
+		}
+	}
+	for (const node of props.nodes ?? []) ele.appendChild(node);
+	return ele;
+}
+
+/**
  * 字符串拼出错误
  * @param infos 错误信息
  */
