@@ -15,10 +15,10 @@ initCallbackHandler({
 });
 
 const pandoc = new mods.Pandoc(
-	fetch('/public/lib/pandoc.wasm'),
+	fetchSafe('/public/lib/pandoc.wasm'),
 	{ err: msg => wrong(Error(msg)) },
 );
-pandoc.init();
+pandoc.init().catch(wrong);
 
 const uploader = new mods.Resumable({
 	target: '/api/upload/trans.php',

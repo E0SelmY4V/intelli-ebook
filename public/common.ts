@@ -89,6 +89,15 @@ function tryFn<T>(fn: () => T): T {
 	}
 }
 
+/**更安全的 fetch ，可以在出错时显示大红色错误界面 */
+function fetchSafe(...[url, init]: Parameters<typeof fetch>) {
+	return fetchSafe.fetch(url, init).catch(wrong);
+}
+namespace fetchSafe {
+	export import fetch = globalThis.fetch;
+	globalThis.fetch = () => wrong(Error('禁止使用没有被包裹的原生 fetch'));
+}
+
 /**
  * 发起网络请求，若有错误则显示大红色错误页面
  * @param url 请求地址
@@ -96,7 +105,7 @@ function tryFn<T>(fn: () => T): T {
  * @returns 请求结果
  */
 async function req(url: string | URL | Request, init?: RequestInit): Promise<Response> {
-	const r = await tryFn(() => fetch(url, init));
+	const r = await fetchSafe(url, init);
 	if (!r.ok) wrong(getError(
 		`req in ${url} with ${JSON.stringify(init ?? null)}`,
 		'',
