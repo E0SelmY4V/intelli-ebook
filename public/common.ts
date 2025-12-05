@@ -7,7 +7,7 @@ type Tostrable = string | number | null | undefined | boolean;
  * @param id 元素 id
  * @param tag
  */
-function gid<K extends keyof HTMLElementTagNameMap>(id: string, tag: K): HTMLElementTagNameMap[K] {
+function gid<K extends gele.Tags>(id: string, tag: K): HTMLElementTagNameMap[K] {
 	const ele = document.getElementById(id) ?? wrong(getError('找不到:', id, tag));
 	if (ele.tagName.toLowerCase() !== tag) wrong(getError('错误的标签', id, tag, ele.tagName));
 	// @ts-ignore
@@ -18,22 +18,32 @@ function gid<K extends keyof HTMLElementTagNameMap>(id: string, tag: K): HTMLEle
  * 方便地获得一个元素
  * @param tag 元素的标签
  */
-function gele<K extends keyof HTMLElementTagNameMap>(
+function gele<K extends gele.Tags>(
 	tag: K,
-	props: Readonly<Partial<(HTMLElementTagNameMap[K] & { nodes: readonly HTMLElement[] }) | Record<string, null>>>,
+	props: gele.PropsMap<K> = {},
 ): HTMLElementTagNameMap[K] {
 	const ele = document.createElement(tag);
-	for (const key of Object.keys(props) as (keyof HTMLElement)[]) {
+	for (const key of Object.keys(props)) {
+		// @ts-ignore
 		const prop = props[key] ?? null;
 		if (prop !== null) try {
 			// @ts-ignore
 			ele[key] = prop;
-		} catch (err) {
-			wrong(err);
+		} catch (cause) {
+			wrong(Error('生成元素错误', { cause }));
 		}
 	}
 	for (const node of props.nodes ?? []) ele.appendChild(node);
 	return ele;
+}
+namespace gele {
+	export type Tags = keyof HTMLElementTagNameMap;
+	interface OtherOption {
+		nodes: readonly HTMLElement[];
+	}
+	export type PropsMap<K extends Tags> = Readonly<Partial<
+		(HTMLElementTagNameMap[K] & OtherOption) | Record<string, null>
+	>>;
 }
 
 /**
