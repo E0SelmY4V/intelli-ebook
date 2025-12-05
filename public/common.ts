@@ -112,21 +112,23 @@ function tryFn<T>(fn: () => T): T {
 }
 
 /**
- * 获得任意东西的所有属性，包括原型链上的，但除了 `Object.prototype`
+ * 获得任意东西的所有属性，包括原型链上的，但除了 `getAllProp.unchecks`
  * @param n 任意东西
  * @returns 包含所有属性的对象
  */
-function getAllProp(n: unknown) {
+function getAllProp(n: unknown, depth = 1) {
+	if (depth <= 0) return n;
 	const m = Object.create(null) as getAllProp.PropObj;
 	const ori = n;
-	while (n && n !== Object.prototype) {
-		getAllProp.getProp(n, m, ori);
+	while (n && !getAllProp.unchecks.has(n)) {
+		getAllProp.getProp(n, m, ori, depth - 1);
 		n = Reflect.getPrototypeOf(n);
 	}
 	return m;
 }
 namespace getAllProp {
 	export type PropObj = Record<symbol | string, unknown>;
+	export const unchecks = new Set([Object.prototype, Function.prototype, Array.prototype]);
 	class PropError extends Error {
 		constructor(name: keyof PropObj, e: unknown) {
 			const cause = JSON.stringify(e instanceof Error ? e.message : e);
@@ -134,14 +136,19 @@ namespace getAllProp {
 			super(msg, { cause });
 		}
 	}
-	export function getProp(n: any, m: PropObj, ori: any) {
+	export function getProp(n: any, m: PropObj, ori: any, depth: number) {
 		for (const name of Reflect.ownKeys(n)) {
 			if (name in m && !(m[name] instanceof PropError)) continue;
 			try {
 				const d = Reflect.getOwnPropertyDescriptor(n, name);
-				if (!d) m[name] = n[name];
-				else if (d.get) m[name] = d.get.call(ori);
-				else m[name] = d.value;
+				const v = !d ? n[name] : d.get ? d.get.call(ori) : d.value;
+				switch (typeof v) {
+					case 'object':
+						m[name] = getAllProp(v, depth);
+						break;
+					default:
+						m[name] = v;
+				}
 			} catch (e) {
 				m[name] = new PropError(name, e);
 			}
