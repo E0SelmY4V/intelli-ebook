@@ -63,6 +63,7 @@ function thr(error: unknown): never {
  */
 function panic(error: Error): never {
 	if (!error) panic(Error('没有提供错误'));
+	panic.uncatchedMem.add(error);
 	panic.errors.add(error);
 	panic.show();
 	panic.createPage();
@@ -111,7 +112,7 @@ namespace panic {
 		const box = document.body ?? document.head ?? document;
 		box.insertBefore(div, box.firstChild);
 	}
-	const uncatchedMap = new Set<Error | string | Promise<unknown>>();
+	export const uncatchedMem = new Set<Error | string | Promise<unknown>>();
 	function onerror(
 		event: Event | string,
 		source = '未知代码',
@@ -122,8 +123,8 @@ namespace panic {
 	) {
 		const catched = Error('未捕获的错误', { cause: { event, source, colno, lineno, error, message } });
 		error ??= `${message} ${source} ${lineno} ${colno}`;
-		if (uncatchedMap.has(error)) return;
-		uncatchedMap.add(error);
+		if (uncatchedMem.has(error)) return;
+		uncatchedMem.add(error);
 		panic(catched);
 	}
 	window.onerror = onerror;
@@ -132,9 +133,9 @@ namespace panic {
 		onerror(event, filename, colno, lineno, error, message);
 	});
 	window.addEventListener('unhandledrejection', ({ promise, reason }) => {
-		if (uncatchedMap.has(promise)) return;
+		if (uncatchedMem.has(promise)) return;
 		const catched = Error('未捕获的异步错误', { cause: reason });
-		uncatchedMap.add(promise);
+		uncatchedMem.add(promise);
 		panic(catched);
 	});
 }
