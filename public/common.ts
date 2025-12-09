@@ -53,6 +53,10 @@ function getError(...infos: Tostrable[]) {
 	return Error(infos.join('\n'));
 }
 
+function thr(error: unknown): never {
+	throw error;
+}
+
 /**
  * 显示大红色错误页面并终止
  * @param error 错误信息
