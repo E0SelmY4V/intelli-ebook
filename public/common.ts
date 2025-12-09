@@ -286,7 +286,7 @@ onload = () => {
 	}
 	for (const ele of document.getElementsByName('step')) {
 		if (!(ele instanceof HTMLInputElement)) panic(Error('不是表单元素', { cause: ele }));
-		if (!ele.value) continue;
+		if (ele.value) continue;
 		const step = ele.parentElement?.parentElement?.dataset.step ?? panic(Error('父节点没有 step', { cause: ele }));
 		ele.value = step;
 	}
