@@ -61,8 +61,9 @@ function thr(error: unknown): never {
  * 显示大红色错误页面并终止
  * @param error 错误信息
  */
-function panic(error: Error): never {
+function panic(error: Error, from = panic.From.Frontend): never {
 	if (!error) panic(Error('没有提供错误'));
+	panic.setFrom(from);
 	panic.uncatchedMem.add(error);
 	panic.errors.add(error);
 	panic.show();
@@ -76,13 +77,12 @@ namespace panic {
 		Backend = '后台',
 		Both = '页面和后台',
 	}
+	let fromNow: From | null = null;
 	export function setFrom(from: From) {
-		if (fromNow !== from) from = From.Both;
+		if (fromNow && fromNow !== from) from = From.Both;
 		fromNow = spanCache.innerText = from;
 	}
-	let fromNow = From.Frontend;
-	setFrom(From.Frontend);
-	const preCache = gele('pre', { id: 'wrong_explain_pre' });
+	const preCache = gele('pre');
 	export const errors = new Set<Error>();
 	export function show() {
 		preCache.innerText = Array.from(errors

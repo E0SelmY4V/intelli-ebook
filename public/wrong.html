@@ -9,8 +9,8 @@
 	<body>
 		<script>
 			const a = new URLSearchParams(window.location.search);
-			panic.setFrom(panic.From.Backend);
-			panic(a.get('info'), false);
+			const msg = a.get('info') ?? panic(Error('未知错误'), panic.From.Backend);
+			panic(Error(msg), panic.From.Backend);
 		</script>
 	</body>
 </html>

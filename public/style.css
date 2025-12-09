@@ -21,7 +21,7 @@
 	margin-bottom: 1em;
 }
 
-#wrong_explain_pre {
+#wrong_div pre {
 	background: #fff;
 	color: #000;
 	padding: 2em;
