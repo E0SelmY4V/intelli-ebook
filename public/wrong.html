@@ -9,7 +9,8 @@
 	<body>
 		<script>
 			const a = new URLSearchParams(window.location.search);
-			wrong(a.get('info'), false);
+			panic.setFrom(panic.From.Backend);
+			panic(a.get('info'), false);
 		</script>
 	</body>
 </html>
