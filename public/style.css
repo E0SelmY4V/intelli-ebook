@@ -12,6 +12,13 @@
 	background: red;
 	color: #fff;
 	padding: 3em;
+	display: flex;
+	flex-direction: column;
+}
+
+#wrong_div hr {
+	margin-top: 1em;
+	margin-bottom: 1em;
 }
 
 #wrong_explain_pre {
@@ -20,6 +27,7 @@
 	padding: 2em;
 	margin: 2em;
 	overflow: auto;
+	flex: 1;
 }
 
 #info_div {
