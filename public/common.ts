@@ -1,6 +1,40 @@
 /// <reference path="./mods.ts" />
 
 type Tostrable = string | number | null | undefined | boolean;
+type Dereadonly<T> = { -readonly [K in keyof T]: T[K] };
+
+/**
+ * 合并两个对象
+ * @param from 源对象
+ * @param to 目标对象
+ * @param skipKeys 源对象要忽略的键
+ */
+function merge<T, K extends string>(
+	from: (Partial<Readonly<Omit<T, K>>> & Record<K, unknown>) | undefined,
+	to: T,
+	skipKeys: Set<K> | readonly K[],
+): void;
+function merge<T>(from: Partial<Readonly<T>> | undefined, to: T): void;
+function merge(
+	from: Record<string, unknown> | undefined,
+	to: Record<string, unknown>,
+	skipKeys?: Set<string> | readonly string[],
+) {
+	if (from === void 0) return;
+	const filter: (k: string) => boolean = skipKeys
+		? 'size' in skipKeys
+			? k => !skipKeys.has(k)
+			: k => !skipKeys.includes(k)
+		: _ => true;
+	for (const key of Object.keys(from).filter(filter)) {
+		const prop = from[key];
+		if (prop !== void 0) try {
+			to[key] = prop;
+		} catch (cause) {
+			throw Error('合并 ' + key + ' 错误');
+		}
+	}
+}
 
 /**
  * 用 id 获得元素并验证类型
@@ -17,32 +51,32 @@ function gid<K extends gele.Tags>(id: string, tag: K): HTMLElementTagNameMap[K] 
  * 方便地获得一个元素
  * @param tag 元素的标签
  */
-function gele<K extends gele.Tags>(
+function gele<K extends gele.Tags, T extends gele.PropsMap<K>>(
 	tag: K,
-	props: gele.PropsMap<K> = {},
-): HTMLElementTagNameMap[K] {
+	props?: T,
+): HTMLElementTagNameMap[K] & Dereadonly<typeof props> {
 	const ele = document.createElement(tag);
-	for (const key of Object.keys(props)) {
-		// @ts-ignore
-		const prop = props[key] ?? null;
-		if (prop !== null) try {
-			// @ts-ignore
-			ele[key] = prop;
-		} catch (cause) {
-			panic(Error('生成元素错误', { cause }));
-		}
+	if (props === void 0) return ele as any;
+	try {
+		merge(props, ele, ['nodes', 'style']);
+		props.nodes?.map(node => ele.appendChild(node));
+		merge(props.style, ele.style);
+	} catch (error) {
+		panic(Error('无法创建元素', { cause: { error, tag, props } }));
 	}
-	for (const node of props.nodes ?? []) ele.appendChild(node);
-	return ele;
+	return ele as any;
 }
 namespace gele {
 	export type Tags = keyof HTMLElementTagNameMap;
 	interface OtherOption {
 		nodes: readonly HTMLElement[];
+		style: Readonly<Partial<CSSStyleDeclaration>>;
 	}
-	export type PropsMap<K extends Tags> = Readonly<Partial<
-		(HTMLElementTagNameMap[K] & OtherOption) | Record<string, null>
-	>>;
+	interface PartOtherOption extends Readonly<Partial<OtherOption>> { }
+	export type PropsMap<K extends Tags>
+		= Readonly<Partial<Omit<HTMLElementTagNameMap[K], keyof OtherOption>>>
+		& PartOtherOption
+		& Record<string, unknown>;
 }
 
 /**
