@@ -8,10 +8,9 @@ type Tostrable = string | number | null | undefined | boolean;
  * @param tag
  */
 function gid<K extends gele.Tags>(id: string, tag: K): HTMLElementTagNameMap[K] {
-	const ele = document.getElementById(id) ?? wrong(getError('找不到:', id, tag));
-	if (ele.tagName.toLowerCase() !== tag) wrong(getError('错误的标签', id, tag, ele.tagName));
-	// @ts-ignore
-	return ele;
+	const ele = document.getElementById(id) ?? panic(getError('找不到:', id, tag));
+	if (ele.tagName.toLowerCase() !== tag) panic(getError('错误的标签', id, tag, ele.tagName));
+	return ele as any;
 }
 
 /**
@@ -30,7 +29,7 @@ function gele<K extends gele.Tags>(
 			// @ts-ignore
 			ele[key] = prop;
 		} catch (cause) {
-			wrong(Error('生成元素错误', { cause }));
+			panic(Error('生成元素错误', { cause }));
 		}
 	}
 	for (const node of props.nodes ?? []) ele.appendChild(node);
@@ -57,45 +56,89 @@ function getError(...infos: Tostrable[]) {
 /**
  * 显示大红色错误页面并终止
  * @param error 错误信息
- * @param front 是否是前端发生的错误
  */
-function wrong(error: Error, front = true): never {
-	if (!error) wrong(Error('没有提供错误'));
-	if (wrong.errorsNow.size) {
-		wrong.errorsNow.add(error);
-		if (wrong.errorsNow.size === 1) throw error;
-		const aErr = new AggregateError(wrong.errorsNow, Array.from(wrong.errorsNow.values()).join('\n'));
-		if (!wrong.pre.ele) {
-			wrong.errorsNow.clear();
-			wrong(aErr);
-		}
-		wrong.pre.ele.innerText = aErr.toString();
-		throw aErr;
-	}
-	wrong.errorsNow.add(error);
-	const div = document.createElement('div');
-	div.innerHTML = `
-		<h1>我的天啊${front ? '页面' : '后台'}出问题了！</h1>
-		<br />
-		<hr color="#fff" />
-		<br />
-		<p>请你带着以下错误报告向管理员汇报，或者重试一下？</p>
-	`;
-	div.id = 'wrong_div';
-	const pre = wrong.pre.ele = document.createElement('pre');
-	pre.innerText = error.toString();
-	pre.id = 'wrong_explain_pre';
-	div.appendChild(pre);
-	document.children[0].appendChild(div);
+function panic(error: Error): never {
+	if (!error) panic(Error('没有提供错误'));
+	panic.errors.add(error);
+	panic.show();
+	panic.createPage();
 	throw error;
 }
-namespace wrong {
-	export const errorsNow = new Set<Error>();
-	export const pre: { ele: HTMLPreElement | null } = { ele: null };
+namespace panic {
+	const spanCache = gele('span');
+	export enum From {
+		Frontend = '页面',
+		Backend = '后台',
+		Both = '页面和后台',
+	}
+	export function setFrom(from: From) {
+		if (fromNow !== from) from = From.Both;
+		fromNow = spanCache.innerText = from;
+	}
+	let fromNow = From.Frontend;
+	setFrom(From.Frontend);
+	const preCache = gele('pre', { id: 'wrong_explain_pre' });
+	export const errors = new Set<Error>();
+	export function show() {
+		preCache.innerText = Array.from(errors
+			.values())
+			.flatMap(err => [err, stringifyAll(err)])
+			.join('\n');
+	}
+	let created = false;
+	export function createPage() {
+		if (created) return;
+		created = true;
+		const div = gele('div', {
+			nodes: [
+				gele('h1', {
+					nodes: [
+						gele('span', { innerText: '我的天啊，' }),
+						spanCache,
+						gele('span', { innerText: '出问题了！' }),
+					],
+				}),
+				gele('br'),
+				gele('hr', { color: '#fff' }),
+				gele('br'),
+				gele('p', { innerText: '请你带着以下错误报告向管理员汇报，或者重试一下？' }),
+				preCache,
+			],
+			id: 'wrong_div',
+		});
+		const box = document.body ?? document.head ?? document;
+		box.insertBefore(div, box.firstChild);
+	}
+	const uncatchedMap = new Set<Error | string | Promise<unknown>>();
+	function onerror(
+		event: Event | string,
+		source = '未知代码',
+		colno = 999,
+		lineno = 999,
+		error?: Error | string,
+		message = '没提示',
+	) {
+		const catched = Error('未捕获的错误', { cause: { event, source, colno, lineno, error, message } });
+		error ??= `${message} ${source} ${lineno} ${colno}`;
+		if (uncatchedMap.has(error)) return;
+		uncatchedMap.add(error);
+		panic(catched);
+	}
+	window.onerror = onerror;
+	window.addEventListener('error', event => {
+		const { error, message, colno, lineno, filename } = event;
+		onerror(event, filename, colno, lineno, error, message);
+	});
+	window.addEventListener('unhandledrejection', ({ promise, reason }) => {
+		if (uncatchedMap.has(promise)) return;
+		const catched = Error('未捕获的异步错误', { cause: reason });
+		uncatchedMap.add(promise);
+		panic(catched);
+	});
 }
 
 /**当前所在的 script 标签 */
-const eleNow = document.currentScript ?? wrong(Error('拿不到当前所在 script 标签'));
+const eleNow = document.currentScript ?? panic(Error('拿不到当前所在 script 标签'));
 
 if (!('mods' in globalThis)) {
 	const insJs = (src: string) => {
@@ -112,12 +155,12 @@ if (!('mods' in globalThis)) {
  * @param fn 可能报错的操作
  * @returns 操作结果
  */
-function tryFn<T>(fn: () => T): T {
+function panicable<T>(fn: () => T): T {
 	try {
 		return fn();
 	} catch (error) {
-		// @ts-ignore
-		wrong(error);
+		if (error instanceof Error) panic(error);
+		else panic(Error('不是错误', { cause: error }));
 	}
 }
 
@@ -126,7 +169,7 @@ function tryFn<T>(fn: () => T): T {
  * @param n 任意东西
  * @returns 包含所有属性的对象
  */
-function getAllProp(n: unknown, depth = 1) {
+function getAllProp(n: unknown, depth = 4) {
 	if (depth <= 0) return n;
 	const m = Object.create(null) as getAllProp.PropObj;
 	const ori = n;
@@ -165,14 +208,8 @@ namespace getAllProp {
 		}
 	}
 }
-
-/**更安全的 fetch ，可以在出错时显示大红色错误界面 */
-function fetchSafe(...[url, init]: Parameters<typeof fetch>) {
-	return fetchSafe.fetch(url, init).catch(wrong);
-}
-namespace fetchSafe {
-	export import fetch = globalThis.fetch;
-	globalThis.fetch = () => wrong(Error('禁止使用没有被包裹的原生 fetch'));
+function stringifyAll(n: unknown, depth?: number) {
+	return JSON.stringify(getAllProp(n, depth), null, 2);
 }
 
 /**
@@ -181,13 +218,15 @@ namespace fetchSafe {
  * @param init 请求配置
  * @returns 请求结果
  */
-async function req(url: string | URL | Request, init?: RequestInit): Promise<Response> {
-	const r = await fetchSafe(url, init);
-	if (!r.ok) wrong(getError(
-		`req in ${url} with ${JSON.stringify(init ?? null)}`,
+async function forceReq(url: string | URL | Request, init?: RequestInit): Promise<Response> {
+	const r = await fetch(url, init).catch(panic);
+	if (!r.ok) panic(getError(
+		`req in ${url} with ${stringifyAll(init)}`,
 		'',
 		`${r.status} ${r.statusText}`,
-		Array.from(r.headers.entries()).map(([k, v]) => `${k}: ${v};`)
+		Array
+			.from(r.headers.entries())
+			.map(([k, v]) => `${k}: ${v};`)
 			.join('\n'),
 		await r.text(),
 	));
@@ -201,38 +240,49 @@ async function req(url: string | URL | Request, init?: RequestInit): Promise<Res
  * @param node 需要被操作的元素
  * @param before 在 node 前插入，而不是作为其内部第一个元素
  */
-function showInfo(title: Tostrable, body: Tostrable, node: Element = document.body.children[0], before = true) {
-	const div = document.createElement('div');
-	div.innerHTML = `
-		<h2>${title}</h2>
-		<p>${body}</p>
-	`;
-	const span = document.createElement('span');
-	span.id = 'info_close_span';
-	span.innerHTML = 'x';
-	span.onclick = () => document.body.removeChild(div);
-	div.appendChild(span);
-	div.id = 'info_div';
-	console.log(title, body);
-	tryFn(() => {
-		// @ts-ignore
-		if (before) node.parentNode.insertBefore(div, node);
-		else if (node.children[0]) node.insertBefore(div, node.children[0]);
-		else node.appendChild(div);
+function showInfo(title: Tostrable, body: Tostrable, node?: Element, before = true) {
+	const div = gele('div', {
+		nodes: [
+			gele('h2', { innerHTML: `${title}` }),
+			gele('p', { innerHTML: `${body}` }),
+			gele('span', {
+				id: 'info_close_span',
+				innerHTML: 'x',
+				onclick: () => document.body.removeChild(div),
+			}),
+		],
+		id: 'info_div',
 	});
+	console.log(title, body);
+	if (!node) {
+		const bodyFirst = document.body.firstChild;
+		if (bodyFirst && bodyFirst instanceof HTMLElement) node = bodyFirst;
+		else {
+			before = false;
+			node = document.body;
+		}
+	}
+	if (before) node.parentNode?.insertBefore(div, node);
+	else node.insertBefore(div, node.firstChild);
 }
 
 /**页面所带的参数 */
 const query = new URLSearchParams(window.location.search);
 
-onload = () => tryFn(() => {
+onload = () => {
 	// 初始化表单的状态标记
-	// @ts-ignore
-	document.getElementsByName('from').forEach(n => n.value = location);
-	// @ts-ignore
-	document.getElementsByName('step').forEach(n => !n.value && (n.value = n.parentNode.parentNode.dataset.step));
-	setOnload.fns.forEach(tryFn);
-});
+	for (const ele of document.getElementsByName('from')) {
+		if (!(ele instanceof HTMLInputElement)) panic(Error('不是表单元素', { cause: ele }));
+		ele.value = location.toString();
+	}
+	for (const ele of document.getElementsByName('step')) {
+		if (!(ele instanceof HTMLInputElement)) panic(Error('不是表单元素', { cause: ele }));
+		if (!ele.value) continue;
+		const step = ele.parentElement?.parentElement?.dataset.step ?? panic(Error('父节点没有 step', { cause: ele }));
+		ele.value = step;
+	}
+	setOnload.fns.forEach(panicable);
+};
 /**
  * 注册页面 onload 函数
  * @param fn 函数
@@ -260,7 +310,7 @@ function showForm(step: FormStep) {
 	(Array
 		.from(document.getElementsByName('stepping'))
 		.find(n => n.dataset.step === stepStr)
-		?? wrong(getError('没有对应步骤的表单: ', step))
+		?? panic(getError('没有对应步骤的表单: ', step))
 	).hidden = false;
 }
 
@@ -299,7 +349,7 @@ function initCallbackHandler<
 	initCode: CbCode = 'start',
 ) {
 	function assertK(k: CbCode): asserts k is K {
-		if (!(k in cbs)) wrong(Error(`未知的状态码: ${JSON.stringify(k)}`));
+		if (!(k in cbs)) panic(Error(`未知的状态码: ${stringifyAll(k)}`));
 	}
 	const infoRaw = query.get('info');
 	const callback: [CbCode | [code: CbCode, infoForm: FormStep], ...any[]] = JSON.parse(infoRaw ?? `["${initCode}"]`);
@@ -310,11 +360,11 @@ function initCallbackHandler<
 		const [localForm, action] = cbs[code];
 		showForm(
 			(localForm === cbForm ? infoForm : localForm)
-			?? wrong(getError('没有指定显示哪一步表单: ', code, infoRaw)),
+			?? panic(getError('没有指定显示哪一步表单: ', code, infoRaw)),
 		);
 		if (typeof action === 'function') {
 			const tup = Type.Tuple(argTypes?.[code]?.slice(0) ?? []);
-			if (!Value.Check(tup, info)) wrong(getError(`${code} 的回调参数类型错误`, JSON.stringify(info, null, 2)));
+			if (!Value.Check(tup, info)) panic(getError(`${code} 的回调参数类型错误`, stringifyAll(info)));
 			action(...info);
 		} else if (action) showInfo(...(action as [string, string]));
 	});
