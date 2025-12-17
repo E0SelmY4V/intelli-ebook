@@ -8,7 +8,11 @@ const findedObjType = Type.Object({
 });
 
 initCallbackHandler({
-	start: [noForm],
+	start: [noForm, () => {
+		const cid = query.get('cid') ?? panic(Error('不知道用户要看什么章节'));
+		gid('find_cid_input', 'input').value = cid;
+		gid('find_submit_input', 'input').click();
+	}],
 	finded: ['main', render],
 }, {
 	finded: [findedObjType],
