@@ -4,6 +4,7 @@
 declare module './mods';
 
 import * as zOri from 'zod';
+import * as PandocTypesOri from './lib/pandoc';
 import * as Mods from './mods';
 
 namespace zImported {
@@ -22,12 +23,16 @@ declare global {
 	namespace globalThis {
 		export import mods = Mods;
 		export import z = zImported;
+		export import Pandoc = Mods.PandocOri;
+		export import PandocTypes = PandocTypesOri;
 	}
 }
 export { default as Resumable } from 'resumablejs';
-export { default as Pandoc } from './lib/pandoc';
+export { default as PandocOri } from './lib/pandoc';
 
 globalThis.mods = Mods;
 globalThis.z = zImported;
+globalThis.Pandoc = Mods.PandocOri;
+globalThis.PandocTypes = PandocTypesOri;
 
 

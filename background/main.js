@@ -14,7 +14,7 @@ initCallbackHandler({
 	success: [z.number()],
 });
 
-const pandoc = new mods.Pandoc(
+const pandoc = new Pandoc(
 	forceReq('/public/lib/pandoc.wasm'),
 	{ err: msg => panic(Error(msg)) },
 );
