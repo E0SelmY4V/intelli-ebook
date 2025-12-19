@@ -1,5 +1,6 @@
 {
 	"$schema": "https://json.schemastore.org/package",
+	"type": "module",
 	"scripts": {
 		"build": "tsx build.ts",
 		"test": "tsc --noEmit",
