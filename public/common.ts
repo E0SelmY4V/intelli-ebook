@@ -123,23 +123,6 @@ function showForm(step: FormStep) {
 type CbCode = string | number;
 /**使用回调给的表单 */
 const cbForm = Symbol('Use callback form');
-type Statics<
-	T,
-	R extends any[] = [],
-> = T extends readonly [infer N extends TSchema, ...infer L extends readonly TSchema[]]
-	? Statics<L, [...R, Static<N>]>
-	: R;
-type CbArgTypes<K extends CbCode> = Partial<Record<K, readonly TSchema[]>>;
-/**状态规则 */
-type CbMap<K extends CbCode, T extends CbArgTypes<K>> = {
-	[I in K]: [
-		cbForm: FormStep | typeof cbForm,
-		action?: (I extends keyof T
-			? ((...cbData: Statics<T[I]>) => void)
-			: ((() => void) | Parameters<typeof showInfo>)
-		),
-	]
-};
 /**
  * 获得页面状态管理器
  * @param cbs 各状态对应动作
@@ -147,30 +130,53 @@ type CbMap<K extends CbCode, T extends CbArgTypes<K>> = {
  */
 function initCallbackHandler<
 	K extends CbCode,
-	const T extends CbArgTypes<K> = {},
+	const T extends initCallbackHandler.CbArgTypes<K> = {},
 >(
-	cbs: CbMap<K, T>,
+	cbs: initCallbackHandler.CbMap<K, T>,
 	argTypes: T | null = null,
 	initCode: CbCode = 'start',
 ) {
-	function assertK(k: CbCode): asserts k is K {
+	const { code, infoForm, info } = initCallbackHandler.parseInfo(cbs, initCode);
+	const [localForm, action] = cbs[code];
+	const form = (localForm === cbForm ? infoForm : localForm)
+		?? panic(getError('没有指定显示哪一步表单: ', code, stringifyAll(info)));
+	const tup = Type.Tuple(argTypes?.[code]?.slice(0) ?? []);
+	setOnload(() => showForm(form));
+	if (typeof action === 'function') {
+		if (!Value.Check(tup, info)) panic(getError(`${code} 的回调参数类型错误`, stringifyAll(info)));
+		setOnload(() => action(...info));
+	} else if (action) setOnload(() => showInfo(...(action as [string, string])));
+}
+namespace initCallbackHandler {
+	export type Statics<
+		T,
+		R extends any[] = [],
+	> = T extends readonly [infer N extends TSchema, ...infer L extends readonly TSchema[]]
+		? Statics<L, [...R, Static<N>]>
+		: R;
+	export type CbArgTypes<K extends CbCode> = Partial<Record<K, readonly TSchema[]>>;
+	/**状态规则 */
+	export type CbMap<K extends CbCode, T extends CbArgTypes<K>> = {
+		[I in K]: [
+			cbForm: FormStep | typeof cbForm,
+			action?: (I extends keyof T
+				? ((...cbData: Statics<T[I]>) => void)
+				: ((() => void) | Parameters<typeof showInfo>)
+			),
+		]
+	};
+	export function assertK<K extends CbCode>(k: CbCode, cbs: CbMap<K, any>): asserts k is K {
 		if (!(k in cbs)) panic(Error(`未知的状态码: ${stringifyAll(k)}`));
 	}
-	const infoRaw = query.get('info');
-	const callback: [CbCode | [code: CbCode, infoForm: FormStep], ...any[]] = JSON.parse(infoRaw ?? `["${initCode}"]`);
-	setOnload(() => {
-		const [infoHead, ...info] = callback;
+	export type Info = [
+		CbCode | [code: CbCode, infoForm: Exclude<FormStep, symbol>],
+		...unknown[],
+	];
+	export function parseInfo<K extends CbCode>(cbs: initCallbackHandler.CbMap<K, any>, initCode: CbCode) {
+		const infoRaw = query.get('info');
+		const [infoHead, ...info]: initCallbackHandler.Info = JSON.parse(infoRaw ?? `["${initCode}"]`);
 		const [code, infoForm = null] = Array.isArray(infoHead) ? infoHead : [infoHead];
-		assertK(code);
-		const [localForm, action] = cbs[code];
-		showForm(
-			(localForm === cbForm ? infoForm : localForm)
-			?? panic(getError('没有指定显示哪一步表单: ', code, infoRaw)),
-		);
-		if (typeof action === 'function') {
-			const tup = Type.Tuple(argTypes?.[code]?.slice(0) ?? []);
-			if (!Value.Check(tup, info)) panic(getError(`${code} 的回调参数类型错误`, stringifyAll(info)));
-			action(...info);
-		} else if (action) showInfo(...(action as [string, string]));
-	});
+		initCallbackHandler.assertK(code, cbs);
+		return { code, infoForm, info };
+	}
 }
