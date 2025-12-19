@@ -137,12 +137,16 @@ function stringifyAll(n: unknown, depth?: number) {
 	}
 }
 
+type StrGetable = Tostrable | object;
+function getStr(...args: StrGetable[]) {
+	return args.map(n => (typeof n === 'object' && n ? stringifyAll(n) : n)).join('\n');
+}
 /**
  * 字符串拼出错误
  * @param infos 错误信息
  */
-function getError(...infos: Tostrable[]) {
-	return Error(infos.join('\n'));
+function getError(...infos: StrGetable[]) {
+	return Error(getStr(...infos));
 }
 
 function thr(error: unknown): never {
@@ -225,26 +229,36 @@ namespace panic {
 		onerror(event, filename, colno, lineno, error, message);
 	});
 	window.addEventListener('unhandledrejection', ({ promise, reason }) => {
-		if (uncatchedMem.has(promise)) return;
+		if (uncatchedMem.has(promise) || uncatchedMem.has(reason)) return;
 		const catched = Error('未捕获的异步错误', { cause: reason });
 		uncatchedMem.add(promise);
+		uncatchedMem.add(reason);
 		panic(catched);
 	});
 }
 
 /**
- * 用 wrong 函数包装可能报错的操作
+ * 用 panic 函数包装可能报错的操作或 Promise
  * @param fn 可能报错的操作
  * @param why 为什么可能报错
  * @returns 操作结果
  */
-function panicable<T>(fn: () => T, why?: string): T {
+function panicable<T>(fn: () => T, ...why: StrGetable[]): T;
+function panicable(firstWhy: Tostrable, ...why: StrGetable[]): (error: unknown) => never;
+function panicable<T>(fn: (() => T) | Tostrable, ...why: StrGetable[]): T | ((cause: unknown) => never) {
+	if (typeof fn !== 'function') {
+		const error = getError(fn, ...why);
+		return cause => {
+			error.cause = cause;
+			panic(error);
+		};
+	}
 	try {
 		return fn();
 	} catch (error) {
 		panic(
-			why !== void 0 || !(error instanceof Error)
-				? Error(why ?? '捕获的非 Error', { cause: error })
+			why.length !== 0 || !(error instanceof Error)
+				? Error(getStr(why) || '捕获的非 Error', { cause: error })
 				: error,
 		);
 	}

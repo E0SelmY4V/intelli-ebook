@@ -24,7 +24,7 @@ insJs('main.js');
  * @returns 请求结果
  */
 async function forceReq(url: string | URL | Request, init?: RequestInit): Promise<Response> {
-	const r = await fetch(url, init).catch(panic);
+	const r = await fetch(url, init).catch(panicable('请求失败: ', url, init));
 	if (!r.ok) panic(getError(
 		`req in ${url} with ${stringifyAll(init)}`,
 		'',
