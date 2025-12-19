@@ -3,36 +3,31 @@
  */
 declare module './mods';
 
-import * as TypeOri from 'typebox';
-import * as ValueOri from 'typebox/value';
+import * as zOri from 'zod';
 import * as Mods from './mods';
 
-namespace TypeImported {
-	export import Object = TypeOri.Object;
-	export import String = TypeOri.String;
-	export import Number = TypeOri.Number;
-	export import Tuple = TypeOri.Tuple;
-}
-
-namespace ValueImported {
-	export import Check = ValueOri.Check;
+namespace zImported {
+	export import object = zOri.object;
+	export import tuple = zOri.tuple;
+	export import string = zOri.string;
+	export import number = zOri.number;
+	export import ZodTuple = zOri.ZodTuple;
+	export import ZodType = zOri.ZodType;
+	export type infer<T> = zOri.infer<T>;
+	export type output<T> = zOri.output<T>;
+	export type input<T> = zOri.input<T>;
 }
 
 declare global {
 	namespace globalThis {
 		export import mods = Mods;
-		export import Type = TypeImported;
-		export import Value = ValueImported;
-		export import TSchema = TypeOri.TSchema;
-		export import Static = TypeOri.Static;
-
+		export import z = zImported;
 	}
 }
 export { default as Resumable } from 'resumablejs';
 export { default as Pandoc } from './lib/pandoc';
 
 globalThis.mods = Mods;
-globalThis.Type = TypeImported;
-globalThis.Value = ValueImported;
+globalThis.z = zImported;
 
 

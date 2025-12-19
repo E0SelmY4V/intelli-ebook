@@ -140,27 +140,26 @@ function initCallbackHandler<
 	const [localForm, action] = cbs[code];
 	const form = (localForm === cbForm ? infoForm : localForm)
 		?? panic(getError('没有指定显示哪一步表单: ', code, stringifyAll(info)));
-	const tup = Type.Tuple(argTypes?.[code]?.slice(0) ?? []);
+	const schemas = argTypes?.[code];
+	const parsed = schemas ? panicable(() => z.tuple(schemas).parse(info)) : [];
 	setOnload(() => showForm(form));
-	if (typeof action === 'function') {
-		if (!Value.Check(tup, info)) panic(getError(`${code} 的回调参数类型错误`, stringifyAll(info)));
-		setOnload(() => action(...info));
-	} else if (action) setOnload(() => showInfo(...(action as [string, string])));
+	if (typeof action === 'function') setOnload(() => action(...parsed as any));
+	else if (action) setOnload(() => showInfo(...(action as [string, string])));
 }
 namespace initCallbackHandler {
-	export type Statics<
+	export type infers<
 		T,
 		R extends any[] = [],
-	> = T extends readonly [infer N extends TSchema, ...infer L extends readonly TSchema[]]
-		? Statics<L, [...R, Static<N>]>
+	> = T extends readonly [infer N, ...infer L]
+		? infers<L, [...R, z.infer<N>]>
 		: R;
-	export type CbArgTypes<K extends CbCode> = Partial<Record<K, readonly TSchema[]>>;
+	export type CbArgTypes<K extends CbCode> = Partial<Record<K, readonly [z.ZodType, ...z.ZodType[]]>>;
 	/**状态规则 */
 	export type CbMap<K extends CbCode, T extends CbArgTypes<K>> = {
 		[I in K]: [
 			cbForm: FormStep | typeof cbForm,
-			action?: (I extends keyof T
-				? ((...cbData: Statics<T[I]>) => void)
+			action?: (T[I] extends readonly z.ZodType[]
+				? ((...cbData: Must<z.infer<z.ZodTuple<T[I], null>>, any[]>) => void)
 				: ((() => void) | Parameters<typeof showInfo>)
 			),
 		]

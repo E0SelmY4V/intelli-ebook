@@ -1,5 +1,6 @@
 type Tostrable = string | number | null | undefined | boolean;
 type Dereadonly<T> = { -readonly [K in keyof T]: T[K] };
+type Must<T, A> = T extends A ? T : never;
 
 /**
  * 合并两个对象

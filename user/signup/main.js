@@ -27,9 +27,9 @@ initCallbackHandler({
 		gid('id_a', 'a').innerHTML = `${uid}`;
 	}],
 }, {
-	wrong_email: [Type.String()],
-	email_failed: [Type.String()],
-	findback: [Type.Object({ id: Type.String(), name: Type.String(), signup_time: Type.String() })],
-	succ: [Type.Number()],
+	wrong_email: [z.string()],
+	email_failed: [z.string()],
+	findback: [z.object({ id: z.string(), name: z.string(), signup_time: z.string() })],
+	succ: [z.number()],
 });
 

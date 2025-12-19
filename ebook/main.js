@@ -1,10 +1,10 @@
 /// <reference path="../public/common.ts" />
 
-const findedObjType = Type.Object({
-	id: Type.String(),
-	uid: Type.String(),
-	update_time: Type.String(),
-	fid: Type.String(),
+const findedObjType = z.object({
+	id: z.string(),
+	uid: z.string(),
+	update_time: z.string(),
+	fid: z.string(),
 });
 
 initCallbackHandler({
@@ -19,7 +19,7 @@ initCallbackHandler({
 });
 
 /**
- * @param {Static<typeof findedObjType>} finded
+ * @param {z.infer<typeof findedObjType>} finded
  */
 async function render({ fid }) {
 	const res = await forceReq(`/api/upload/files/${fid}/index.json`);

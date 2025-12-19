@@ -10,8 +10,8 @@ initCallbackHandler({
 	registFailed: ['upload', ['无法注册此内容', '请重新上传']],
 	success: ['success', cid => gid('succ_url_a', 'a').href = `/ebook/?cid=${cid}`],
 }, {
-	authed: [Type.String()],
-	success: [Type.Number()],
+	authed: [z.string()],
+	success: [z.number()],
 });
 
 const pandoc = new mods.Pandoc(
