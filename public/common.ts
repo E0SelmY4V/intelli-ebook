@@ -86,7 +86,7 @@ onload = () => {
 		const step = ele.parentElement?.parentElement?.dataset.step ?? panic(Error('父节点没有 step', { cause: ele }));
 		ele.value = step;
 	}
-	setOnload.fns.forEach(panicable);
+	setOnload.fns.forEach(fn => panicable(fn, 'onload 执行错误'));
 };
 /**
  * 注册页面 onload 函数
@@ -141,7 +141,7 @@ function initCallbackHandler<
 	const form = (localForm === cbForm ? infoForm : localForm)
 		?? panic(getError('没有指定显示哪一步表单: ', code, stringifyAll(info)));
 	const schemas = argTypes?.[code];
-	const parsed = schemas ? panicable(() => z.tuple(schemas).parse(info)) : [];
+	const parsed = schemas ? panicable(() => z.tuple(schemas).parse(info), '服务端数据类型不正确') : [];
 	setOnload(() => showForm(form));
 	if (typeof action === 'function') setOnload(() => action(...parsed as any));
 	else if (action) setOnload(() => showInfo(...(action as [string, string])));

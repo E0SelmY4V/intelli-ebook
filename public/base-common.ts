@@ -235,13 +235,17 @@ namespace panic {
 /**
  * 用 wrong 函数包装可能报错的操作
  * @param fn 可能报错的操作
+ * @param why 为什么可能报错
  * @returns 操作结果
  */
-function panicable<T>(fn: () => T): T {
+function panicable<T>(fn: () => T, why?: string): T {
 	try {
 		return fn();
 	} catch (error) {
-		if (error instanceof Error) panic(error);
-		else panic(Error('不是错误', { cause: error }));
+		panic(
+			why !== void 0 || !(error instanceof Error)
+				? Error(why ?? '捕获的非 Error', { cause: error })
+				: error,
+		);
 	}
 }
