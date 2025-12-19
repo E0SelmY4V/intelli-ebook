@@ -2,7 +2,7 @@
 self/*
 pnpm-lock.yaml
 node_modules
-public/dist
+**/dist
 api/upload/files
 api/upload/temp
 

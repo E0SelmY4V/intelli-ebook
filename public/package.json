@@ -5,15 +5,13 @@
 		"prebuild": "ts-to-zod node_modules/pandoc-types/index.d.ts dist/pandoc-schemas.ts --inferredTypes=dist/pandoc-types.ts",
 		"build": "tsx build.ts",
 		"test": "tsc --noEmit",
-		"clean": "rimraf ../dist"
+		"clean": "rimraf ./dist"
 	},
 	"devDependencies": {
-		"esbuild": "latest",
 		"@bjorn3/browser_wasi_shim": "0.3.0",
 		"zod": "latest",
 		"pandoc-types": "latest",
 		"resumablejs": "latest",
-		"ts-to-zod": "latest",
-		"tsx": "latest"
+		"ts-to-zod": "latest"
 	}
 }

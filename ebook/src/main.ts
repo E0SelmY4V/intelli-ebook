@@ -1,4 +1,6 @@
-/// <reference path="../public/common.ts" />
+/// <reference path="../../public/common.ts" />
+
+export { };
 
 const findedObjType = z.object({
 	id: z.string(),
@@ -18,10 +20,7 @@ initCallbackHandler({
 	finded: [findedObjType],
 });
 
-/**
- * @param {z.infer<typeof findedObjType>} finded
- */
-async function render({ fid }) {
+async function render({ fid }: z.infer<typeof findedObjType>) {
 	const res = await forceReq(`/api/upload/files/${fid}/index.json`);
 	const content = await res.json();
 	console.log(content);

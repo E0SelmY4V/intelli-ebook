@@ -15,7 +15,17 @@ function insJs(src: string) {
 	eleNow.parentNode?.insertBefore(modsEle, eleNow);
 	return modsEle;
 }
-insJs('main.js');
+namespace insJs {
+	const srcables = [
+		'dist/main.js',
+		'main.js',
+	];
+	function load(index: number) {
+		const src = srcables.at(index) ?? panic(Error('找不到任何页面脚本'));
+		insJs(src).onerror = () => load(index + 1);
+	}
+	load(0);
+}
 
 /**
  * 发起网络请求，若有错误则显示大红色错误页面

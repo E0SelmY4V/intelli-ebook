@@ -18,6 +18,7 @@ const config = defineConfig(
 				project: [
 					'tsconfig.json',
 					'public/tsconfig.json',
+					'ebook/tsconfig.json',
 				],
 			},
 		},

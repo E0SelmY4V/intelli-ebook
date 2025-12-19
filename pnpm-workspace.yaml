@@ -1,3 +1,4 @@
 packages:
     # 外部 js 库相关
     - 'public'
+    - 'ebook'
