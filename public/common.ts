@@ -80,6 +80,65 @@ namespace gele {
 }
 
 /**
+ * 获得任意东西的所有属性，包括原型链上的，但除了 `getAllProp.unchecks`
+ * @param n 任意东西
+ * @returns 包含所有属性的对象
+ */
+function getAllProp(n: unknown, depth = 10, stepped = new WeakSet<{}>()) {
+	if (depth <= 0 || typeof n !== 'object' || n === null) return n;
+	if (stepped.has(n)) return new getAllProp.CyclicError(n);
+	stepped.add(n);
+	const m = Object.create(null) as getAllProp.PropObj;
+	const ori = n;
+	while (n && !getAllProp.unchecks.has(n)) {
+		getAllProp.getProp(n, m, ori, depth - 1, stepped);
+		n = Reflect.getPrototypeOf(n);
+	}
+	return m;
+}
+namespace getAllProp {
+	export type PropObj = Record<symbol | string, unknown>;
+	export const unchecks = new Set([
+		Object.prototype,
+		Function.prototype,
+		Array.prototype,
+		HTMLElement.prototype,
+	]);
+	export class CyclicError extends Error {
+		constructor(obj: {}) {
+			super('Had Cycle!', { cause: obj });
+		}
+	}
+	class PropError extends Error {
+		constructor(name: keyof PropObj, e: unknown) {
+			const cause = JSON.stringify(e instanceof Error ? e.message : e);
+			const msg = `can't get ${name.toString()} cause ${cause}`;
+			super(msg, { cause });
+		}
+	}
+	export function getProp(n: any, m: PropObj, ori: any, depth: number, stepped: WeakSet<{}>) {
+		for (const name of Reflect.ownKeys(n)) {
+			if (name in m && !(m[name] instanceof PropError)) continue;
+			try {
+				const d = Reflect.getOwnPropertyDescriptor(n, name);
+				const v = !d ? n[name] : d.get ? d.get.call(ori) : d.value;
+				m[name] = getAllProp(v, depth, stepped);
+			} catch (e) {
+				m[name] = new PropError(name, e);
+			}
+		}
+	}
+}
+function stringifyAll(n: unknown, depth?: number) {
+	try {
+		return JSON.stringify(getAllProp(n, depth), null, 2);
+	} catch (err) {
+		console.log(n);
+		throw err;
+	}
+}
+
+/**
  * 字符串拼出错误
  * @param infos 错误信息
  */
@@ -143,7 +202,7 @@ namespace panic {
 			],
 			id: 'wrong_div',
 		});
-		const box = document.body ?? document.head ?? document;
+		const box = document.body ?? document.head.parentNode?.appendChild(gele('body'));
 		box.insertBefore(div, box.firstChild);
 	}
 	export const uncatchedMem = new Set<Error | string | Promise<unknown>>();
@@ -198,65 +257,6 @@ function panicable<T>(fn: () => T): T {
 	} catch (error) {
 		if (error instanceof Error) panic(error);
 		else panic(Error('不是错误', { cause: error }));
-	}
-}
-
-/**
- * 获得任意东西的所有属性，包括原型链上的，但除了 `getAllProp.unchecks`
- * @param n 任意东西
- * @returns 包含所有属性的对象
- */
-function getAllProp(n: unknown, depth = 10, stepped = new WeakSet<{}>()) {
-	if (depth <= 0 || typeof n !== 'object' || n === null) return n;
-	if (stepped.has(n)) return new getAllProp.CyclicError(n);
-	stepped.add(n);
-	const m = Object.create(null) as getAllProp.PropObj;
-	const ori = n;
-	while (n && !getAllProp.unchecks.has(n)) {
-		getAllProp.getProp(n, m, ori, depth - 1, stepped);
-		n = Reflect.getPrototypeOf(n);
-	}
-	return m;
-}
-namespace getAllProp {
-	export type PropObj = Record<symbol | string, unknown>;
-	export const unchecks = new Set([
-		Object.prototype,
-		Function.prototype,
-		Array.prototype,
-		HTMLElement.prototype,
-	]);
-	export class CyclicError extends Error {
-		constructor(obj: {}) {
-			super('Had Cycle!', { cause: obj });
-		}
-	}
-	class PropError extends Error {
-		constructor(name: keyof PropObj, e: unknown) {
-			const cause = JSON.stringify(e instanceof Error ? e.message : e);
-			const msg = `can't get ${name.toString()} cause ${cause}`;
-			super(msg, { cause });
-		}
-	}
-	export function getProp(n: any, m: PropObj, ori: any, depth: number, stepped: WeakSet<{}>) {
-		for (const name of Reflect.ownKeys(n)) {
-			if (name in m && !(m[name] instanceof PropError)) continue;
-			try {
-				const d = Reflect.getOwnPropertyDescriptor(n, name);
-				const v = !d ? n[name] : d.get ? d.get.call(ori) : d.value;
-				m[name] = getAllProp(v, depth, stepped);
-			} catch (e) {
-				m[name] = new PropError(name, e);
-			}
-		}
-	}
-}
-function stringifyAll(n: unknown, depth?: number) {
-	try {
-		return JSON.stringify(getAllProp(n, depth), null, 2);
-	} catch (err) {
-		console.log(n);
-		throw err;
 	}
 }
 
