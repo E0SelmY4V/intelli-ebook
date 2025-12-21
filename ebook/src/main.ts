@@ -20,6 +20,10 @@ initCallbackHandler({
 	finded: [findedObjType],
 });
 
+/**
+ * 获取文章 PandocJSON
+ * @param fid 文章的文件 id
+ */
 async function getContent(fid: string) {
 	const res = await forceReq(`/api/upload/files/${fid}/index.json`);
 	const json = await res.json().catch(panicable('文章 json 解析失败'));
