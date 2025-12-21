@@ -102,7 +102,7 @@ export default class Pandoc {
 		return medias;
 	}
 
-	parseSync(argsStr: string, input: string | Uint8Array<ArrayBufferLike>, mediaFolder = 'media') {
+	parseSync(argsStr: string, input: string | Uint8Array<ArrayBufferLike>, mediaFolder: string | null = null) {
 		const { getFn, getBuffer } = this.insObj ?? (() => { throw Error('Not inited'); })();
 		const argsPtr = getFn('malloc')(argsStr.length);
 		new TextEncoder().encodeInto(
@@ -115,7 +115,7 @@ export default class Pandoc {
 		const data = this.fileOut.data.slice(byteOffset, byteOffset + byteLength);
 		this.fileOut.data = new Uint8Array();
 		this.fileIn.data = new Uint8Array();
-		const medias = this.getMedia(mediaFolder);
+		const medias = mediaFolder === null ? [] : this.getMedia(mediaFolder);
 		return { data, medias };
 	}
 
