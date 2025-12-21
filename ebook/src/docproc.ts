@@ -41,7 +41,7 @@ export interface Grouped {
  * @param levelNow 当前分到的标题
  */
 export function groupifyAll(blocks: Block[], least: number, levelNow = 2): GroupedBook {
-	if (levelNow >= least) return blocks;
+	if (levelNow > least) return blocks;
 	const { sum, groups } = groupify(blocks, levelNow);
 	return {
 		sum,
