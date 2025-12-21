@@ -1,6 +1,6 @@
 /// <reference path="../../public/common.ts" />
 
-import { groupifyAll } from './docproc';
+import { Renderer } from './docproc';
 
 const findedObjType = z.object({
 	id: z.string(),
@@ -35,6 +35,11 @@ async function getContent(fid: string) {
 }
 async function render({ fid }: z.infer<typeof findedObjType>) {
 	const content = await getContent(fid);
-	console.log(groupifyAll(content.blocks, 4));
+	const pandoc = new Pandoc(
+		forceReq('/public/lib/pandoc.wasm'),
+		{ err: msg => console.error(msg) },
+	);
+	await pandoc.init();
+	gid('view_div', 'div').appendChild(new Renderer(pandoc, content, 4).build());
 }
 

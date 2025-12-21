@@ -2,6 +2,7 @@
 
 import Block = PandocTypes.Block;
 import Header = PandocTypes.Header;
+import PandocJSON = PandocTypes.PandocJSON;
 
 /**
  * 给块按照 `level` 级标题分组
@@ -49,5 +50,73 @@ export function groupifyAll(blocks: Block[], least: number, levelNow = 2): Group
 			([header, blocks]) => [header, groupifyAll(blocks, least, levelNow + 1)],
 		)),
 	};
+}
+
+/**页面文章渲染器 */
+export class Renderer {
+	protected static decoder = new TextDecoder('utf-8');
+	protected readonly groupedBook: GroupedBook;
+	/**
+	 * 分组整个文章
+	 * @param pandoc 初始化过的 pandoc 类
+	 * @param content 文章的 PandocJSON
+	 * @param least 最少分到第几级标题
+	 */
+	constructor(
+		protected readonly pandoc: Pandoc,
+		protected readonly content: PandocJSON,
+		protected readonly least: number,
+	) {
+		this.groupedBook = groupifyAll(content.blocks, least);
+	}
+	protected getPandocJSON(this: this, blocks: Block[]): PandocJSON {
+		return {
+			blocks,
+			'pandoc-api-version': this.content['pandoc-api-version'],
+			meta: {},
+		};
+	}
+	protected pandocToHtml(this: this, blocks: Block[]): string {
+		return Renderer.decoder.decode(this.pandoc.parseSync(
+			'-f json -t html --mathjax',
+			JSON.stringify(this.getPandocJSON(blocks)),
+		).data);
+	}
+	protected geleBody(this: this, blocks: Block[]) {
+		const innerHTML = this.pandocToHtml(blocks);
+		return gele('div', {
+			innerHTML,
+		});
+	}
+	protected geleHeader(this: this, header: Header) {
+		const innerHTML = this.pandocToHtml([header]);
+		return gele('div', {
+			innerHTML,
+		});
+	}
+	protected geleGrouped(this: this, groupedBook: GroupedBook): HTMLDivElement {
+		if (Array.isArray(groupedBook)) return this.geleBody(groupedBook);
+		const { sum, content } = groupedBook;
+		const bodyEles = [this.geleBody(sum)];
+		const headerEles: HTMLDivElement[] = [];
+		content.forEach((body, header) => {
+			headerEles.push(this.geleHeader(header));
+			bodyEles.push(this.geleGrouped(body));
+		});
+		return gele('div', {
+			nodes: [
+				gele('div', {
+					nodes: headerEles,
+				}),
+				gele('div', {
+					nodes: bodyEles,
+				}),
+			],
+		});
+	}
+	/**构建主元素 */
+	build() {
+		return this.geleGrouped(this.groupedBook);
+	}
 }
 
