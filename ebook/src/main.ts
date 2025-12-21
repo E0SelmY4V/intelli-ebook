@@ -1,6 +1,6 @@
 /// <reference path="../../public/common.ts" />
 
-export { };
+import { groupifyAll } from './docproc';
 
 const findedObjType = z.object({
 	id: z.string(),
@@ -20,9 +20,17 @@ initCallbackHandler({
 	finded: [findedObjType],
 });
 
-async function render({ fid }: z.infer<typeof findedObjType>) {
+async function getContent(fid: string) {
 	const res = await forceReq(`/api/upload/files/${fid}/index.json`);
-	const content = await res.json();
-	console.log(content);
+	const json = await res.json().catch(panicable('文章 json 解析失败'));
+	return panicable(
+		() => PandocTypes.pandocJsonSchema.parse(json),
+		'文章 json 不符合 schema',
+		json,
+	);
+}
+async function render({ fid }: z.infer<typeof findedObjType>) {
+	const content = await getContent(fid);
+	console.log(groupifyAll(content.blocks, 4));
 }
 
