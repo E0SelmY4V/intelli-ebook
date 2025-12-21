@@ -82,41 +82,59 @@ export class Renderer {
 			JSON.stringify(this.getPandocJSON(blocks)),
 		).data);
 	}
-	protected geleBody(this: this, blocks: Block[]) {
-		const innerHTML = this.pandocToHtml(blocks);
-		return gele('div', {
-			innerHTML,
+	protected geleBody(this: this, ...[blocks, ele]: [Block[]] | [HTMLDivElement, HTMLDivElement]): HTMLDivElement {
+		const div = gele('div', {
+			className: 'show_body',
+			hidden: true,
 		});
+		if (Array.isArray(blocks)) {
+			div.innerHTML = this.pandocToHtml(blocks);
+		} else {
+			div.appendChild(blocks);
+			div.appendChild(ele!);
+		}
+		return div;
 	}
-	protected geleHeader(this: this, header: Header) {
+	protected geleHeader(this: this, header: Header): HTMLDivElement {
 		const innerHTML = this.pandocToHtml([header]);
 		return gele('div', {
 			innerHTML,
+			className: 'show_header',
 		});
 	}
 	protected geleGrouped(this: this, groupedBook: GroupedBook): HTMLDivElement {
 		if (Array.isArray(groupedBook)) return this.geleBody(groupedBook);
 		const { sum, content } = groupedBook;
-		const bodyEles = [this.geleBody(sum)];
+		const sumEle = this.geleBody(sum);
+		sumEle.hidden = false;
+		const bodyEles = [sumEle];
 		const headerEles: HTMLDivElement[] = [];
 		content.forEach((body, header) => {
-			headerEles.push(this.geleHeader(header));
-			bodyEles.push(this.geleGrouped(body));
+			const headerEle = this.geleHeader(header);
+			const bodyEle = this.geleGrouped(body);
+			headerEle.onclick = () => {
+				bodyEles.forEach(n => n.hidden = true);
+				bodyEle.hidden = false;
+			};
+			headerEles.push(headerEle);
+			bodyEles.push(bodyEle);
 		});
-		return gele('div', {
-			nodes: [
-				gele('div', {
-					nodes: headerEles,
-				}),
-				gele('div', {
-					nodes: bodyEles,
-				}),
-			],
-		});
+		return this.geleBody(
+			gele('div', {
+				nodes: headerEles,
+				className: 'show_header_box',
+			}),
+			gele('div', {
+				nodes: bodyEles,
+				className: 'show_body_box',
+			}),
+		);
 	}
 	/**构建主元素 */
-	build() {
-		return this.geleGrouped(this.groupedBook);
+	build(): HTMLDivElement {
+		const div = this.geleGrouped(this.groupedBook);
+		div.hidden = false;
+		return div;
 	}
 }
 
