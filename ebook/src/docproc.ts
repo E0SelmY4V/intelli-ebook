@@ -146,26 +146,36 @@ export class Renderer {
 		if (Array.isArray(groupedBook)) return this.geleBody(groupedBook);
 		const { sum, content } = groupedBook;
 		const sumEle = this.geleBody(sum);
-		this.show(sumEle);
-		const bodyEles = [sumEle];
-		const headerEles: HTMLDivElement[] = [];
-		content.forEach((body, header) => {
-			const headerEle = this.geleHeader(header);
-			const bodyEle = this.geleGrouped(body);
-			headerEle.onclick = () => {
-				bodyEles.forEach(ele => this.hide(ele));
-				this.show(bodyEle);
+		const map = new Map(
+			content
+				.entries()
+				.map(([header, body]) => [this.geleHeader(header), this.geleGrouped(body)]),
+		);
+		let clicked: ReturnType<Renderer['geleHeader']> | null = null;
+		map.forEach((body, header) => {
+			header.onclick = () => {
+				const clickedBody = clicked ? map.get(clicked) ?? panic(Error()) : sumEle;
+				clicked?.classList.remove('show_header_clicked');
+				if (clicked === header) {
+					clicked = null;
+					this.hide(body);
+					this.show(sumEle);
+				} else {
+					clicked = header;
+					this.hide(clickedBody);
+					this.show(body);
+					header.classList.add('show_header_clicked');
+				}
 			};
-			headerEles.push(headerEle);
-			bodyEles.push(bodyEle);
 		});
+		this.show(sumEle);
 		return this.geleBody(
 			gele('div', {
-				nodes: headerEles,
-				className: headerEles.length ? 'show_header_box' : '',
+				nodes: map.keys().flatMap(v => [v, gele('hr')]),
+				className: map.size ? 'show_header_box' : '',
 			}),
 			gele('div', {
-				nodes: bodyEles,
+				nodes: [sumEle, ...map.values()],
 				className: 'show_body_box',
 			}),
 		);
