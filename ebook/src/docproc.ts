@@ -56,6 +56,8 @@ export function groupifyAll(blocks: Block[], least: number, levelNow = 2): Group
 export class Renderer {
 	/**解析 File 用的*/
 	protected static decoder = new TextDecoder('utf-8');
+	/**图片文件的位置 */
+	static readonly imgFolder = '/api/upload/files/';
 	/**被分组后的文章 */
 	protected readonly groupedBook: GroupedBook;
 	/**
@@ -114,7 +116,9 @@ export class Renderer {
 		});
 		this.hide(div);
 		if (Array.isArray(blocks)) {
-			div.innerHTML = this.pandocToHtml(blocks);
+			div.innerHTML = this
+				.pandocToHtml(blocks)
+				.replaceAll('src="', `src="${Renderer.imgFolder}`);
 		} else {
 			div.appendChild(blocks);
 			div.appendChild(ele!);
