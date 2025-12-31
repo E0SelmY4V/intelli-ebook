@@ -58,7 +58,7 @@ function gele<K extends gele.Tags, T extends gele.PropsMap<K>>(
 	if (props === void 0) return ele as any;
 	try {
 		merge(props, ele, ['nodes', 'style']);
-		props.nodes?.map(node => ele.appendChild(node));
+		for (const node of props.nodes ?? []) ele.appendChild(node);
 		merge(props.style, ele.style);
 	} catch (error) {
 		panic(Error('无法创建元素', { cause: { error, tag, props } }));
@@ -68,7 +68,7 @@ function gele<K extends gele.Tags, T extends gele.PropsMap<K>>(
 namespace gele {
 	export type Tags = keyof HTMLElementTagNameMap;
 	interface OtherOption {
-		nodes: readonly HTMLElement[];
+		nodes: Iterable<HTMLElement>;
 		style: Readonly<Partial<CSSStyleDeclaration>>;
 	}
 	interface PartOtherOption extends Readonly<Partial<OtherOption>> { }
