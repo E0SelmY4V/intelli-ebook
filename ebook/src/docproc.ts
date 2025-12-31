@@ -90,13 +90,29 @@ export class Renderer {
 		).data);
 	}
 	/**
+	 * 隐藏一个元素
+	 * @param ele 要被操作的元素
+	 */
+	protected hide(ele: HTMLElement) {
+		ele.hidden = true;
+		ele.style.display = 'none';
+	}
+	/**
+	 * 显示一个元素
+	 * @param ele 要被操作的元素
+	 */
+	protected show(ele: HTMLElement) {
+		ele.hidden = false;
+		ele.style.display = '';
+	}
+	/**
 	 * 得到 show_body ，给内容或者标题和内容 div
 	 */
 	protected geleBody(this: this, ...[blocks, ele]: [Block[]] | [HTMLDivElement, HTMLDivElement]): HTMLDivElement {
 		const div = gele('div', {
 			className: 'show_body',
-			hidden: true,
 		});
+		this.hide(div);
 		if (Array.isArray(blocks)) {
 			div.innerHTML = this.pandocToHtml(blocks);
 		} else {
@@ -124,15 +140,15 @@ export class Renderer {
 		if (Array.isArray(groupedBook)) return this.geleBody(groupedBook);
 		const { sum, content } = groupedBook;
 		const sumEle = this.geleBody(sum);
-		sumEle.hidden = false;
+		this.show(sumEle);
 		const bodyEles = [sumEle];
 		const headerEles: HTMLDivElement[] = [];
 		content.forEach((body, header) => {
 			const headerEle = this.geleHeader(header);
 			const bodyEle = this.geleGrouped(body);
 			headerEle.onclick = () => {
-				bodyEles.forEach(n => n.hidden = true);
-				bodyEle.hidden = false;
+				bodyEles.forEach(ele => this.hide(ele));
+				this.show(bodyEle);
 			};
 			headerEles.push(headerEle);
 			bodyEles.push(bodyEle);
@@ -151,7 +167,7 @@ export class Renderer {
 	/**构建主元素 */
 	build(): HTMLDivElement {
 		const div = this.geleGrouped(this.groupedBook);
-		div.hidden = false;
+		this.show(div);
 		return div;
 	}
 }
