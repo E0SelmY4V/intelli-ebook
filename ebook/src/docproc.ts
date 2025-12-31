@@ -3,6 +3,7 @@
 import Block = PandocTypes.Block;
 import Header = PandocTypes.Header;
 import PandocJSON = PandocTypes.PandocJSON;
+import Plain = PandocTypes.Plain;
 
 /**
  * 给块按照 `level` 级标题分组
@@ -132,7 +133,7 @@ export class Renderer {
 	 * @param header pandoc 格式的标题
 	 */
 	protected geleHeader(this: this, header: Header): HTMLDivElement {
-		const innerHTML = this.pandocToHtml([header]);
+		const innerHTML = this.pandocToHtml([{ t: 'Plain', c: header.c[2] } satisfies Plain]);
 		return gele('div', {
 			innerHTML,
 			className: 'show_header',
