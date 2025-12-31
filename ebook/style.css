@@ -1,0 +1,20 @@
+.show_header_box {
+	flex: none;
+	width: 20vw;
+	background: bisque;
+}
+
+.show_header {
+	border-right: 2px solid black;
+	border-bottom: 2px solid black;
+}
+
+.show_body_box {
+}
+
+.show_body_grouped {
+	display: flex;
+	align-items: stretch;
+	flex-wrap: nowrap;
+}
+

@@ -110,7 +110,7 @@ export class Renderer {
 	 */
 	protected geleBody(this: this, ...[blocks, ele]: [Block[]] | [HTMLDivElement, HTMLDivElement]): HTMLDivElement {
 		const div = gele('div', {
-			className: 'show_body',
+			className: ele ? 'show_body show_body_grouped' : 'show_body',
 		});
 		this.hide(div);
 		if (Array.isArray(blocks)) {
