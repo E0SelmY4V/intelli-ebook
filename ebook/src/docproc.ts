@@ -54,7 +54,9 @@ export function groupifyAll(blocks: Block[], least: number, levelNow = 2): Group
 
 /**页面文章渲染器 */
 export class Renderer {
+	/**解析 File 用的*/
 	protected static decoder = new TextDecoder('utf-8');
+	/**被分组后的文章 */
 	protected readonly groupedBook: GroupedBook;
 	/**
 	 * 分组整个文章
@@ -69,19 +71,27 @@ export class Renderer {
 	) {
 		this.groupedBook = groupifyAll(content.blocks, least);
 	}
-	protected getPandocJSON(this: this, blocks: Block[]): PandocJSON {
+	private getPandocJSON(this: this, blocks: Block[]): PandocJSON {
 		return {
 			blocks,
 			'pandoc-api-version': this.content['pandoc-api-version'],
 			meta: {},
 		};
 	}
+	/**
+	 * 把 pandoc 变成 HTML
+	 * @param blocks pandoc 内容
+	 * @returns 得到的 html
+	 */
 	protected pandocToHtml(this: this, blocks: Block[]): string {
 		return Renderer.decoder.decode(this.pandoc.parseSync(
 			'-f json -t html --mathjax',
 			JSON.stringify(this.getPandocJSON(blocks)),
 		).data);
 	}
+	/**
+	 * 得到 show_body ，给内容或者标题和内容 div
+	 */
 	protected geleBody(this: this, ...[blocks, ele]: [Block[]] | [HTMLDivElement, HTMLDivElement]): HTMLDivElement {
 		const div = gele('div', {
 			className: 'show_body',
@@ -95,6 +105,10 @@ export class Renderer {
 		}
 		return div;
 	}
+	/**
+	 * 得到 show_header
+	 * @param header pandoc 格式的标题
+	 */
 	protected geleHeader(this: this, header: Header): HTMLDivElement {
 		const innerHTML = this.pandocToHtml([header]);
 		return gele('div', {
@@ -102,6 +116,10 @@ export class Renderer {
 			className: 'show_header',
 		});
 	}
+	/**
+	 * 递归得到 show_body
+	 * @param groupedBook 分好的组
+	 */
 	protected geleGrouped(this: this, groupedBook: GroupedBook): HTMLDivElement {
 		if (Array.isArray(groupedBook)) return this.geleBody(groupedBook);
 		const { sum, content } = groupedBook;
