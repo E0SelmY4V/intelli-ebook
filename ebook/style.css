@@ -1,7 +1,13 @@
+#view_div {
+	height: 100vh;
+}
+
 .show_header_box {
 	flex: none;
 	width: 20vw;
 	background: bisque;
+	height: 100%;
+	overflow: auto;
 }
 
 .show_header {
@@ -9,12 +15,18 @@
 	border-bottom: 2px solid black;
 }
 
-.show_body_box {
+.show_body {
+	height: 100%;
+}
+
+.show_body_text {
+	overflow: auto;
 }
 
 .show_body_grouped {
 	display: flex;
 	align-items: stretch;
 	flex-wrap: nowrap;
+	height: 100%;
 }
 
