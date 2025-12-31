@@ -160,7 +160,7 @@ export class Renderer {
 		return this.geleBody(
 			gele('div', {
 				nodes: headerEles,
-				className: 'show_header_box',
+				className: headerEles.length ? 'show_header_box' : '',
 			}),
 			gele('div', {
 				nodes: bodyEles,
