@@ -14,6 +14,7 @@
 	padding: 3em;
 	display: flex;
 	flex-direction: column;
+	z-index: 999;
 }
 
 #wrong_div hr {
