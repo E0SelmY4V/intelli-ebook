@@ -40,6 +40,9 @@ async function render({ fid }: z.infer<typeof findedObjType>) {
 		{ err: msg => console.error(msg) },
 	);
 	await pandoc.init();
-	gid('view_div', 'div').appendChild(new Renderer(pandoc, content, 4).build());
+	const rootBody = new Renderer(pandoc, content, 4).build();
+	gid('view_div', 'div').appendChild(rootBody);
+	// @ts-ignore
+	MathJax.startup.promise.then(() => MathJax.typeset([rootBody]));
 }
 
