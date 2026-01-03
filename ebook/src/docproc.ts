@@ -115,13 +115,15 @@ export class Renderer {
 		const div = gele('div', {
 			className: ele
 				? 'show_body show_body_grouped'
-				: 'show_body show_body_text',
+				: 'show_body show_body_text typobox',
 		});
 		this.hide(div);
 		if (Array.isArray(blocks)) {
-			div.innerHTML = this
-				.pandocToHtml(blocks)
-				.replaceAll('src="', `src="${Renderer.imgFolder}`);
+			div.innerHTML = `<div class="typo">
+				${this
+					.pandocToHtml(blocks)
+					.replaceAll('src="', `src="${Renderer.imgFolder}`)}
+			</div>`;
 		} else {
 			div.appendChild(blocks);
 			div.appendChild(ele!);

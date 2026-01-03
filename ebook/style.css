@@ -28,11 +28,11 @@
 
 .show_body {
 	height: 100%;
+	overflow: auto;
 }
 
-.show_body_text {
+.show_body_text > div {
 	padding: 2em;
-	overflow: auto;
 }
 
 .show_body_grouped {

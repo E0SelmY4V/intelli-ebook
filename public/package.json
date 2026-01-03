@@ -9,6 +9,8 @@
 	},
 	"devDependencies": {
 		"@bjorn3/browser_wasi_shim": "0.3.0",
+		"postcss": "latest",
+		"postcss-prefixwrap": "latest",
 		"zod": "latest",
 		"pandoc-types": "latest",
 		"resumablejs": "latest",
