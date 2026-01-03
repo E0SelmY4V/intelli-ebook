@@ -1,3 +1,6 @@
 [submodule "scpo-php"]
 	path = scpo-php
 	url = git@github.com:n9gc/php.git
+[submodule "public/lib/typo"]
+	path = public/lib/typo
+	url = git@github.com:sofish/Typo.css

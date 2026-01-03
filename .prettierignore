@@ -13,4 +13,5 @@
 **/*.md
 **/dist
 pnpm-lock.yaml
+public/lib/typo/*
 
