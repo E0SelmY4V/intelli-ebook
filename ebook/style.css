@@ -1,12 +1,20 @@
 #view_div {
 	height: 100vh;
+	display: flex;
+	align-items: stretch;
+	flex-wrap: nowrap;
+	flex-direction: row-reverse;
 }
 
-.show_header_box {
+.show_body {
+	height: 100%;
+	overflow: auto;
+}
+
+.show_body_header_box {
 	flex: none;
 	width: 20vw;
 	background: bisque;
-	height: 100%;
 	overflow-y: auto;
 	overflow-x: hidden;
 	border-right: 2px solid black;
@@ -26,18 +34,15 @@
 	border-left: 2px solid black;
 }
 
-.show_body {
-	height: 100%;
-	overflow: auto;
+.show_body_text {
+	flex: 1;
 }
 
 .show_body_text > div {
 	padding: 2em;
 }
 
-.show_body_grouped {
-	display: flex;
-	align-items: stretch;
-	flex-wrap: nowrap;
-	height: 100%;
+span.math.display {
+	overflow: auto hidden;
+	display: block;
 }

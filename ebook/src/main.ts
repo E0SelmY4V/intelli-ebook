@@ -1,6 +1,6 @@
 /// <reference path="../../public/common.ts" />
 
-import { Renderer } from './docproc';
+import { render } from './docproc';
 
 const findedObjType = z.object({
 	id: z.string(),
@@ -15,7 +15,7 @@ initCallbackHandler({
 		gid('find_cid_input', 'input').value = cid;
 		gid('find_submit_input', 'input').click();
 	}],
-	finded: ['main', render],
+	finded: ['main', main],
 }, {
 	finded: [findedObjType],
 });
@@ -33,16 +33,16 @@ async function getContent(fid: string) {
 		json,
 	);
 }
-async function render({ fid }: z.infer<typeof findedObjType>) {
+async function main({ fid }: z.infer<typeof findedObjType>) {
 	const content = await getContent(fid);
 	const pandoc = new Pandoc(
 		forceReq('/public/lib/pandoc.wasm'),
 		{ err: msg => console.error(msg) },
 	);
 	await pandoc.init();
-	const rootBody = new Renderer(pandoc, content, 4).build();
-	gid('view_div', 'div').appendChild(rootBody);
+	const rootBodyInners = render(pandoc, content, 4);
+	gid('view_div', 'div').append(...rootBodyInners);
 	// @ts-ignore
-	MathJax.startup.promise.then(() => MathJax.typeset([rootBody]));
+	MathJax.startup.promise.then(() => MathJax.typeset([rootBodyInners]));
 }
 
