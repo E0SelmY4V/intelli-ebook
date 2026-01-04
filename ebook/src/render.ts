@@ -47,21 +47,14 @@ function geleBody(html: string): HTMLDivElement {
 function geleGrouped(
 	serialized: Serialized,
 	nodes: HTMLElement[],
-	preHandle?: PageHandle,
 ): PageHandle {
 	if (serialized.part === 'Page') {
 		const body = geleBody(serialized.html);
 		hide(body);
 		nodes.push(body);
 		return {
-			open() {
-				preHandle?.open();
-				show(body);
-			},
-			close() {
-				preHandle?.close();
-				hide(body);
-			},
+			open: () => show(body),
+			close: () => hide(body),
 		};
 	}
 	const { sum, content } = serialized;
@@ -70,10 +63,17 @@ function geleGrouped(
 	let showing = sumBody;
 	const menu = gele('div', {
 		nodes: content.flatMap(([header, body]) => {
-			const handle = geleGrouped(body, nodes, {
-				open: () => headerEle.classList.add('show_header_clicked'),
-				close: () => headerEle.classList.remove('show_header_clicked'),
-			});
+			const { open, close } = geleGrouped(body, nodes);
+			const handle: PageHandle = {
+				open() {
+					headerEle.classList.add('show_header_clicked');
+					open();
+				},
+				close() {
+					headerEle.classList.remove('show_header_clicked');
+					close();
+				},
+			};
 			const headerEle = gele('div', {
 				innerHTML: header,
 				className: 'show_header',
