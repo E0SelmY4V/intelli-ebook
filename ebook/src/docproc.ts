@@ -17,6 +17,7 @@ function groupify(blocks: Block[], level: number) {
 	const groups: [Header, Block[]][] = [];
 	for (const block of blocks) {
 		if (block.t !== 'Header' || block.c[0] > level) {
+			if (block.t === 'Header') block.c[0] -= 1;
 			(grouping ?? sum).push(block);
 			continue;
 		}
@@ -40,15 +41,15 @@ export interface Grouped {
  * 分组整个文章
  * @param blocks 文章的一堆块
  * @param least 最少分到第几级标题
- * @param levelNow 当前分到的标题
+ * @param levelStart 从第几级标题开始分
  */
-export function groupifyAll(blocks: Block[], least: number, levelNow = 2): GroupedBook {
-	if (levelNow > least) return blocks;
-	const { sum, groups } = groupify(blocks, levelNow);
+export function groupifyAll(blocks: Block[], least: number, levelStart = 2): GroupedBook {
+	if (levelStart > least) return blocks;
+	const { sum, groups } = groupify(blocks, levelStart);
 	return {
 		sum,
 		content: new Map(groups.map(
-			([header, blocks]) => [header, groupifyAll(blocks, least, levelNow + 1)],
+			([header, blocks]) => [header, groupifyAll(blocks, least - 1, levelStart)],
 		)),
 	};
 }
