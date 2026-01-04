@@ -1,6 +1,6 @@
 /// <reference path="../../public/common.ts" />
 
-import { render } from './docproc';
+import { render } from './render';
 
 const findedObjType = z.object({
 	id: z.string(),
