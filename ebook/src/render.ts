@@ -135,11 +135,10 @@ class Renderer {
 		}
 		const { sum, content } = groupedBook;
 		const sumBody = this.geleGrouped(sum, nodes);
-		if (content.size === 0) return sumBody;
+		if (content.length === 0) return sumBody;
 		let showing = sumBody;
 		const menu = gele('div', {
 			nodes: content
-				.entries()
 				.flatMap(([header, body]) => {
 					const handle = this.geleGrouped(body, nodes, {
 						open: () => headerEle.classList.add('show_header_clicked'),

@@ -31,7 +31,7 @@ export interface Grouped {
 	/**最前头不属于任何标题的内容 */
 	sum: Block[];
 	/**之后的每级标题及内容 */
-	content: Map<Header, GroupedBook>;
+	content: [Header, GroupedBook][];
 }
 /**
  * 分组整个文章
@@ -44,8 +44,9 @@ export function groupifyAll(blocks: Block[], least: number, levelStart = 2): Gro
 	const { sum, groups } = groupify(blocks, levelStart);
 	return {
 		sum,
-		content: new Map(groups.map(
-			([header, blocks]) => [header, groupifyAll(blocks, least - 1, levelStart)],
-		)),
+		content: groups.map(([header, blocks]) => [
+			header,
+			groupifyAll(blocks, least - 1, levelStart),
+		]),
 	};
 }
