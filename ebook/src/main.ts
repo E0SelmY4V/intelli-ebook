@@ -1,6 +1,8 @@
 /// <reference path="../../public/common.ts" />
 
+import { groupifyAll } from './group';
 import { render } from './render';
+import { getSerialized, Htmlifier } from './storage';
 
 const findedObjType = z.object({
 	id: z.string(),
@@ -34,13 +36,18 @@ async function getContent(fid: string) {
 	);
 }
 async function main({ fid }: z.infer<typeof findedObjType>) {
-	const content = await getContent(fid);
-	const pandoc = new Pandoc(
-		forceReq('/public/lib/pandoc.wasm'),
-		{ err: msg => console.error(msg) },
-	);
-	await pandoc.init();
-	const rootBodyInners = render(pandoc, content, 4);
+	const least = 4;
+	const serialized = await getSerialized(fid, least, async () => {
+		const content = await getContent(fid);
+		const groupedBook = groupifyAll(content.blocks, least);
+		const pandoc = new Pandoc(
+			forceReq('/public/lib/pandoc.wasm'),
+			{ err: msg => console.error(msg) },
+		);
+		await pandoc.init();
+		return [groupedBook, new Htmlifier(pandoc, content)];
+	});
+	const rootBodyInners = render(serialized);
 	gid('view_div', 'div').append(...rootBodyInners);
 	// @ts-ignore
 	MathJax.startup.promise.then(() => MathJax.typeset([rootBodyInners]));

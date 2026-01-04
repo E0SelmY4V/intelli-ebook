@@ -31,7 +31,7 @@ export interface Grouped {
 	/**最前头不属于任何标题的内容 */
 	sum: Block[];
 	/**之后的每级标题及内容 */
-	content: [Header, GroupedBook][];
+	content: readonly (readonly [Header, GroupedBook])[];
 }
 /**
  * 分组整个文章
