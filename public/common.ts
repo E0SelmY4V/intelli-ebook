@@ -47,6 +47,16 @@ async function forceReq(url: string | URL | Request, init?: RequestInit): Promis
 	));
 	return r;
 }
+
+/**
+ * Promise 形式的延时函数
+ * @param timeMs 单位毫秒的时间
+ * @returns 延时的 Promise
+ */
+function timeout(timeMs: number): Promise<void> {
+	return new Promise(res => setTimeout(res, timeMs));
+}
+
 /**
  * 显示页面顶部提示
  * 必须在 onload 里用

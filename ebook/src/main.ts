@@ -35,6 +35,28 @@ async function getContent(fid: string) {
 		json,
 	);
 }
+
+async function renderMath(eles: HTMLElement[], groupSize = 10, timeMs = 0) {
+	// @ts-ignore
+	await MathJax.startup.promise;
+	let now = -1;
+	const grouped: HTMLElement[][] = [];
+	eles.forEach((n, i) => {
+		const idx = Math.trunc(i / groupSize);
+		if (now !== idx) {
+			now = idx;
+			grouped.push([]);
+		}
+		grouped.at(-1)?.push(n);
+	});
+	console.log(grouped);
+	for (const group of grouped.reverse()) {
+		await timeout(timeMs);
+		// @ts-ignore
+		MathJax.typeset(group);
+	}
+}
+
 async function main({ fid }: z.infer<typeof findedObjType>) {
 	const least = 4;
 	const serialized = await getSerialized(fid, least, async () => {
@@ -49,7 +71,10 @@ async function main({ fid }: z.infer<typeof findedObjType>) {
 	});
 	const rootBodyInners = render(serialized);
 	gid('view_div', 'div').append(...rootBodyInners);
-	// @ts-ignore
-	MathJax.startup.promise.then(() => MathJax.typeset([rootBodyInners]));
+	renderMath(
+		rootBodyInners
+			.filter(n => n.className.includes('show_body_text'))
+			.flatMap(n => Array.from(n.querySelectorAll('.math'))),
+	);
 }
 
