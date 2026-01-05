@@ -25,6 +25,28 @@ async function commonScript() {
 		fsp.readFile('dist/base-common.js'),
 		fsp.readFile('dist/common.js'),
 	])).map(String);
+	return { baseCommonCode, commonCode };
+}
+async function workerScript() {
+	await build({
+		entryPoints: [
+		],
+		bundle: true,
+		sourcemap: true,
+		minify: true,
+		outdir: 'dist',
+		treeShaking: true,
+	});
+	const [pandocWorkerCode] = (await Promise.all([
+		fsp.readFile('dist/pandoc-worker.js'),
+	])).map(String).map(n => JSON.stringify(n));
+	return { pandocWorkerCode };
+}
+async function joinScript() {
+	const [{ baseCommonCode, commonCode }, workerCodes] = await Promise.all([
+		commonScript(),
+		workerScript(),
+	]);
 	await build({
 		entryPoints: ['mods.ts'],
 		bundle: true,
@@ -34,11 +56,14 @@ async function commonScript() {
 		treeShaking: true,
 		banner: { js: baseCommonCode },
 		footer: { js: commonCode },
+		define: {
+			...workerCodes,
+		},
 	});
 }
 
 await Promise.all([
-	commonScript(),
+	joinScript(),
 	typoStyle(),
 ]);
 
