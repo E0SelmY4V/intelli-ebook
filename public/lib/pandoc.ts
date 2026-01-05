@@ -8,9 +8,6 @@ import {
 	WASI,
 } from '@bjorn3/browser_wasi_shim';
 
-export * from '../dist/pandoc-types';
-export * from '../dist/pandoc-schemas';
-
 export default class Pandoc {
 	static args = ['pandoc.wasm', '+RTS', '-H64m', '-RTS'];
 	protected readonly fileIn = new WasiFile(new Uint8Array(), { readonly: true });

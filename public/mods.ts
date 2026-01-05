@@ -4,7 +4,7 @@
 declare module './mods';
 
 import * as zOri from 'zod';
-import * as PandocTypesOri from './lib/pandoc';
+import * as PandocTypesOri from './lib/pandoc-type';
 import * as Mods from './mods';
 
 declare global {
