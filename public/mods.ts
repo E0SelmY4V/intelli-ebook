@@ -11,16 +11,16 @@ declare global {
 	namespace globalThis {
 		export import mods = Mods;
 		export import z = zOri;
-		export import Pandoc = Mods.PandocOri;
+		export import PandocAsync = Mods.PandocAsyncOri;
 		export import PandocTypes = PandocTypesOri;
 	}
 }
 export { default as Resumable } from 'resumablejs';
-export { default as PandocOri } from './lib/pandoc';
+export { default as PandocAsyncOri } from './lib/pandoc-async';
 
 globalThis.mods = Mods;
 globalThis.z = zOri;
-globalThis.Pandoc = Mods.PandocOri;
+globalThis.PandocAsync = Mods.PandocAsyncOri;
 globalThis.PandocTypes = PandocTypesOri;
 
 

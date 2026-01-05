@@ -13,7 +13,7 @@ export class Htmlifier {
 	protected static decoder = new TextDecoder('utf-8');
 	constructor(
 		/**Pandoc 实例 */
-		protected readonly pandoc: Pandoc,
+		protected readonly pandocAsync: PandocAsync,
 		/**用于元数据的 Pandoc 内容整体 */
 		protected readonly content: PandocJSON,
 	) { }
@@ -34,11 +34,11 @@ export class Htmlifier {
 	 * @param blocks pandoc 内容
 	 * @returns 得到的 html
 	 */
-	trans(this: this, blocks: Block[] | Block): string {
-		return Htmlifier.decoder.decode(this.pandoc.parseSync(
+	async trans(this: this, blocks: Block[] | Block): Promise<string> {
+		return Htmlifier.decoder.decode((await this.pandocAsync.parse(
 			'-f json -t html --mathjax',
 			JSON.stringify(this.wrap(Array.isArray(blocks) ? blocks : [blocks])),
-		).data);
+		)).data);
 	}
 }
 
@@ -58,16 +58,16 @@ export type Group = z.infer<typeof Group>;
 export const Serialized = z.union([Page, Group]);
 export type Serialized = z.infer<typeof Serialized>;
 
-export function serialize(groupedBook: GroupedBook, htmlifier: Htmlifier): Serialized {
-	if (Array.isArray(groupedBook)) return { part: 'Page', html: htmlifier.trans(groupedBook) };
+export async function serialize(groupedBook: GroupedBook, htmlifier: Htmlifier): Promise<Serialized> {
+	if (Array.isArray(groupedBook)) return { part: 'Page', html: await htmlifier.trans(groupedBook) };
 	const { sum, content } = groupedBook;
 	return {
 		part: 'Group',
-		sum: { part: 'Page', html: htmlifier.trans(sum) },
-		content: content.map(([header, body]) => [
+		sum: { part: 'Page', html: await htmlifier.trans(sum) },
+		content: await Promise.all(content.map(([header, body]) => Promise.all([
 			htmlifier.trans({ t: 'Plain', c: header.c[2] } satisfies Plain),
 			serialize(body, htmlifier),
-		]),
+		]))),
 	};
 }
 
@@ -83,7 +83,7 @@ export async function getSerialized(
 	const storaged = Serialized.safeParse(await get(getKey(fid, least)));
 	if (storaged.success) return storaged.data;
 	console.log('no storaged');
-	const serialized = serialize(...await orElse());
+	const serialized: Serialized = await serialize(...await orElse());
 	await set(getKey(fid, least), serialized);
 	return serialized;
 }

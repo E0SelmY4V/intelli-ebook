@@ -30,6 +30,7 @@ async function commonScript() {
 async function workerScript() {
 	await build({
 		entryPoints: [
+			'lib/pandoc-worker.ts',
 		],
 		bundle: true,
 		sourcemap: true,

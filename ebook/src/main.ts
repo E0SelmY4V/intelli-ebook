@@ -49,7 +49,6 @@ async function renderMath(eles: HTMLElement[], groupSize = 10, timeMs = 0) {
 		}
 		grouped.at(-1)?.push(n);
 	});
-	console.log(grouped);
 	for (const group of grouped.reverse()) {
 		await timeout(timeMs);
 		// @ts-ignore
@@ -60,22 +59,10 @@ async function renderMath(eles: HTMLElement[], groupSize = 10, timeMs = 0) {
 async function main({ fid }: z.infer<typeof findedObjType>) {
 	const least = 4;
 	const serialized = await getSerialized(fid, least, async () => {
-		const [pandoc, { content, groupedBook }] = await Promise.all([
-			(async () => {
-				const pandoc = new Pandoc(
-					forceReq('/public/lib/pandoc.wasm'),
-					{ err: msg => console.error(msg) },
-				);
-				await pandoc.init();
-				return pandoc;
-			})(),
-			(async () => {
-				const content = await getContent(fid);
-				const groupedBook = groupifyAll(content.blocks, least);
-				return { content, groupedBook };
-			})(),
-		]);
-		return [groupedBook, new Htmlifier(pandoc, content)];
+		const pandocAsync = new PandocAsync(new URL('/public/lib/pandoc.wasm', location.toString()));
+		const content = await getContent(fid);
+		const groupedBook = groupifyAll(content.blocks, least);
+		return [groupedBook, new Htmlifier(pandocAsync, content)];
 	});
 	const rootBodyInners = render(serialized);
 	gid('view_div', 'div').append(...rootBodyInners);

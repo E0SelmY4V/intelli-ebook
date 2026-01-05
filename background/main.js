@@ -14,11 +14,7 @@ initCallbackHandler({
 	success: [z.number()],
 });
 
-const pandoc = new Pandoc(
-	forceReq('/public/lib/pandoc.wasm'),
-	{ err: msg => panic(Error(msg)) },
-);
-pandoc.init();
+const pandocAsync = new PandocAsync(new URL('/public/lib/pandoc.wasm', location.toString()));
 
 const uploader = new mods.Resumable({
 	target: '/api/upload/trans.php',
@@ -44,13 +40,14 @@ setOnload(() => {
 		if (docInput.files === null) panic(Error('你没选文件')); // TODO 不能这么草率的失败
 		if (docInput.files.length > 1) panic(Error('一次只能上传一个文件')); // TODO 这里也是
 		uploader.cancel();
-		const { data, medias } = await pandoc.parse(
+		const { data, medias } = await pandocAsync.parse(
 			`-f docx -t json --mathjax --extract-media=${fid}/`,
 			await docInput.files[0].bytes(),
 			`${fid}/media`,
 		);
 		medias.push(new File([data], 'index.json'));
-		uploader.addFiles(medias);
+		console.log(medias);
+		// uploader.addFiles(medias);
 	};
 });
 
