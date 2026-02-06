@@ -56,10 +56,14 @@ async function renderMath(eles: HTMLElement[], groupSize = 10, timeMs = 0) {
 	}
 }
 
+const least = 4;
+
 async function main({ fid }: z.infer<typeof findedObjType>) {
-	const least = 4;
 	const serialized = await getSerialized(fid, least, async () => {
-		const pandocAsync = new PandocAsync(new URL('/public/lib/pandoc.wasm', location.toString()));
+		const pandocAsync = new PandocAsync({
+			url: new URL('/public/lib/pandoc.wasm', location.toString()),
+			errListeners: [n => panic(getError('pandoc 出问题了，说', n))],
+		});
 		const content = await getContent(fid);
 		const groupedBook = groupifyAll(content.blocks, least);
 		return [groupedBook, new Htmlifier(pandocAsync, content)];

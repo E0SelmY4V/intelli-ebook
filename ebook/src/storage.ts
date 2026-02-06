@@ -7,10 +7,11 @@ import Plain = PandocTypes.Plain;
 import { GroupedBook } from './group';
 import { get, set } from 'idb-keyval';
 
+/**解析 File 用的*/
+const decoder = new TextDecoder('utf-8');
+
 /**把 pandoc 变成 HTML 的 */
 export class Htmlifier {
-	/**解析 File 用的*/
-	protected static decoder = new TextDecoder('utf-8');
 	constructor(
 		/**Pandoc 实例 */
 		protected readonly pandocAsync: PandocAsync,
@@ -35,7 +36,7 @@ export class Htmlifier {
 	 * @returns 得到的 html
 	 */
 	async trans(this: this, blocks: Block[] | Block): Promise<string> {
-		return Htmlifier.decoder.decode((await this.pandocAsync.parse(
+		return decoder.decode((await this.pandocAsync.parse(
 			'-f json -t html --mathjax',
 			JSON.stringify(this.wrap(Array.isArray(blocks) ? blocks : [blocks])),
 		)).data);

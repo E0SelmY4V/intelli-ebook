@@ -14,7 +14,10 @@ initCallbackHandler({
 	success: [z.number()],
 });
 
-const pandocAsync = new PandocAsync(new URL('/public/lib/pandoc.wasm', location.toString()));
+const pandocAsync = new PandocAsync({
+	url: new URL('/public/lib/pandoc.wasm', location.toString()),
+	errListeners: [n => panic(getError('pandoc 出问题了，说', n))],
+});
 
 const uploader = new mods.Resumable({
 	target: '/api/upload/trans.php',
@@ -47,7 +50,7 @@ setOnload(() => {
 		);
 		medias.push(new File([data], 'index.json'));
 		console.log(medias);
-		// uploader.addFiles(medias);
+		uploader.addFiles(medias);
 	};
 });
 

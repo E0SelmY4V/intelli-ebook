@@ -1,4 +1,4 @@
-import Pandoc from './pandoc';
+import Pandoc, { OutListener } from './pandoc';
 
 export interface MsgErr {
 	type: 'Error';
@@ -32,8 +32,31 @@ export type Listener = (ev: MessageEvent<Msg>) => void;
 
 class Queue {
 	protected runningNow = Promise.resolve();
-	add(fn: () => Promise<void> | void) {
+	add(this: this, fn: () => Promise<void> | void) {
 		this.runningNow = this.runningNow.then(fn);
+	}
+}
+
+class Accer {
+	readonly listeners: Set<OutListener>;
+	constructor(listeners: Iterable<OutListener>) {
+		this.listeners = new Set(listeners);
+	}
+
+	protected timer: ReturnType<typeof setTimeout> | null = null;
+	protected acced: string[] = [];
+	protected emit(this: this) {
+		if (this.timer !== null) {
+			clearTimeout(this.timer);
+			this.timer = null;
+		}
+		const info = this.acced.join('\n');
+		this.acced = [];
+		this.listeners.forEach(fn => fn(info));
+	};
+	push(this: this, n: string) {
+		this.acced.push(n);
+		this.timer ??= setTimeout(() => this.emit());
 	}
 }
 
@@ -52,13 +75,20 @@ export default class PandocWorker {
 		});
 	};
 
+	protected readonly errAccer = new Accer([
+		msg => self.postMessage({ type: 'Error', msg } satisfies MsgErr),
+	]);
+	protected readonly outAccer = new Accer([
+		out => self.postMessage({ type: 'Out', out } satisfies MsgOut),
+	]);
+
 	constructor(url: string) {
 		addEventListener('message', this.listener);
 		const pandoc = new Pandoc(
 			fetch(url),
 			{
-				err: msg => self.postMessage({ type: 'Error', msg } satisfies MsgErr),
-				out: out => self.postMessage({ type: 'Out', out } satisfies MsgOut),
+				err: err => this.errAccer.push(err),
+				out: out => this.outAccer.push(out),
 			},
 		);
 		this.pandocPromise = pandoc.init().then(() => pandoc);

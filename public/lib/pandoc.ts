@@ -8,6 +8,8 @@ import {
 	WASI,
 } from '@bjorn3/browser_wasi_shim';
 
+export type OutListener = (msg: string) => void;
+export const encoder = new TextEncoder();
 export default class Pandoc {
 	static args = ['pandoc.wasm', '+RTS', '-H64m', '-RTS'];
 	protected readonly fileIn = new WasiFile(new Uint8Array(), { readonly: true });
@@ -102,11 +104,11 @@ export default class Pandoc {
 	parseSync(argsStr: string, input: string | Uint8Array<ArrayBufferLike>, mediaFolder: string | null = null) {
 		const { getFn, getBuffer } = this.insObj ?? (() => { throw Error('Not inited'); })();
 		const argsPtr = getFn('malloc')(argsStr.length);
-		new TextEncoder().encodeInto(
+		encoder.encodeInto(
 			argsStr,
 			new Uint8Array(getBuffer(), argsPtr, argsStr.length),
 		);
-		this.fileIn.data = typeof input === 'string' ? new TextEncoder().encode(input) : input;
+		this.fileIn.data = typeof input === 'string' ? encoder.encode(input) : input;
 		getFn('wasm_main')(argsPtr, argsStr.length);
 		const { byteOffset, byteLength } = this.fileOut.data;
 		const data = this.fileOut.data.slice(byteOffset, byteOffset + byteLength);
@@ -114,11 +116,6 @@ export default class Pandoc {
 		this.fileIn.data = new Uint8Array();
 		const medias = mediaFolder === null ? [] : this.getMedia(mediaFolder);
 		return { data, medias };
-	}
-
-	async parse(...arg: Parameters<Pandoc['parseSync']>) {
-		await this.init();
-		return this.parseSync(...arg);
 	}
 }
 
