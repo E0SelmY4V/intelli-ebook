@@ -18,9 +18,9 @@ export default function ShowBody({ serialized, hidden }: {
 	return <>
 		<ShowBody serialized={sum} hidden={hidden || showing !== -1} />
 		{
-			content.map(([header, body], idx) => <ShowBody serialized={body} hidden={showing !== idx} key={header} />)
+			content.map(([header, body], idx) => <ShowBody serialized={body} hidden={hidden || showing !== idx} key={header} />)
 		}
-		<div className={clsx('show_body', 'show_body_header_box')} hidden={!content.length || hidden}>
+		<div className={clsx('show_body', 'show_body_header_box')} hidden={hidden || !content.length}>
 			{content.map(([header], idx) => <Fragment key={header}>
 				<Header
 					header={header}
