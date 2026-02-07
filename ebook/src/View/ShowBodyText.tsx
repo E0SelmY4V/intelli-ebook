@@ -15,7 +15,7 @@ export default function ShowBodyText({ html, hidden }: {
 
 	useEffect(() => {
 		if (!contentRef.current) panic(Error('React Ref 导致显示不出内容'));
-		contentRef.current.innerHTML = html.replaceAll('src="', `src=${imgFolder}`);
+		contentRef.current.innerHTML = html.replaceAll('src="', `src="${imgFolder}`);
 		mathJaxRenderer.add(
 			Array.from(contentRef
 				.current
