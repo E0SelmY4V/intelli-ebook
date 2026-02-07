@@ -3,6 +3,11 @@
 	"type": "module",
 	"devDependencies": {
 		"mathjax": "latest",
+		"react-dom": "latest",
+		"react": "latest",
+		"@types/react": "latest",
+		"@types/react-dom": "latest",
+		"clsx": "latest",
 		"idb-keyval": "latest"
 	},
 	"scripts": {

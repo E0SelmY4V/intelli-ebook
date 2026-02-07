@@ -1,7 +1,7 @@
 /// <reference path="../../public/common.ts" />
 
 import { groupifyAll } from './group';
-import { render } from './render';
+import render from './render';
 import { getSerialized, Htmlifier } from './storage';
 
 const findedObjType = z.object({
@@ -68,10 +68,11 @@ async function main({ fid }: z.infer<typeof findedObjType>) {
 		const groupedBook = groupifyAll(content.blocks, least);
 		return [groupedBook, new Htmlifier(pandocAsync, content)];
 	});
-	const rootBodyInners = render(serialized);
-	gid('view_div', 'div').append(...rootBodyInners);
+	const box = gid('view_div', 'div');
+	render(box, serialized);
 	renderMath(
-		rootBodyInners
+		Array.from(box
+			.children)
 			.filter(n => n.className.includes('show_body_text'))
 			.flatMap(n => Array.from(n.querySelectorAll('.math'))),
 	);
