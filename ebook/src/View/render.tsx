@@ -1,7 +1,4 @@
 import { createContext } from 'react';
-import { createRoot } from 'react-dom/client';
-import { Serialized } from '../storage';
-import ShowBody from './ShowBody';
 
 /**图片文件的位置 */
 export const imgFolder = '/api/upload/files/';
@@ -32,13 +29,4 @@ export class MathJaxRenderer {
 }
 
 export const MathJaxRendererContext = createContext(new MathJaxRenderer());
-
-export default function render(box: HTMLElement, serialized: Serialized, mathJaxRenderer?: MathJaxRenderer) {
-	const showBody = <ShowBody serialized={serialized} hidden={false} />;
-	createRoot(box).render(
-		mathJaxRenderer
-			? <MathJaxRendererContext value={mathJaxRenderer}>{showBody}</MathJaxRendererContext>
-			: showBody,
-	);
-}
 

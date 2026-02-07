@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { imgFolder, MathJaxRendererContext } from '.';
+import { imgFolder, MathJaxRendererContext } from './render';
 import { use, useEffect, useRef } from 'react';
 
 /**

@@ -8,7 +8,7 @@ const distDir = dirname(new URL(import.meta.resolve('./dist/main.js')).pathname)
 fsp.cp(join(mjDir, 'tex-chtml.js'), join(distDir, 'tex-chtml.js'));
 fsp.cp(join(mjDir, 'sre'), join(distDir, 'sre'), { recursive: true });
 build({
-	entryPoints: ['src/main.ts'],
+	entryPoints: ['src/main.tsx'],
 	bundle: true,
 	sourcemap: true,
 	minify: true,

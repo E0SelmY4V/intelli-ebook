@@ -1,8 +1,9 @@
 /// <reference path="../../public/common.ts" />
 
+import { createRoot } from 'react-dom/client';
 import { groupifyAll } from './group';
-import render from './render';
 import { getSerialized, Htmlifier } from './storage';
+import View from './View';
 
 const findedObjType = z.object({
 	id: z.string(),
@@ -38,8 +39,8 @@ async function getContent(fid: string) {
 
 const least = 4;
 
-async function main({ fid }: z.infer<typeof findedObjType>) {
-	const serialized = await getSerialized(fid, least, async () => {
+function main({ fid }: z.infer<typeof findedObjType>) {
+	const serializedPromise = getSerialized(fid, least, async () => {
 		const pandocAsync = new PandocAsync({
 			url: new URL('/public/lib/pandoc.wasm', location.toString()),
 			errListeners: [n => panic(getError('pandoc 出问题了，说', n))],
@@ -48,7 +49,6 @@ async function main({ fid }: z.infer<typeof findedObjType>) {
 		const groupedBook = groupifyAll(content.blocks, least);
 		return [groupedBook, new Htmlifier(pandocAsync, content)];
 	});
-	const box = gid('view_div', 'div');
-	render(box, serialized);
+	createRoot(gid('view_div', 'div')).render(<View serializedPromise={serializedPromise} />);
 }
 
