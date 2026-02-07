@@ -36,26 +36,6 @@ async function getContent(fid: string) {
 	);
 }
 
-async function renderMath(eles: HTMLElement[], groupSize = 10, timeMs = 0) {
-	// @ts-ignore
-	await MathJax.startup.promise;
-	let now = -1;
-	const grouped: HTMLElement[][] = [];
-	eles.forEach((n, i) => {
-		const idx = Math.trunc(i / groupSize);
-		if (now !== idx) {
-			now = idx;
-			grouped.push([]);
-		}
-		grouped.at(-1)?.push(n);
-	});
-	for (const group of grouped.reverse()) {
-		await timeout(timeMs);
-		// @ts-ignore
-		MathJax.typeset(group);
-	}
-}
-
 const least = 4;
 
 async function main({ fid }: z.infer<typeof findedObjType>) {
@@ -70,11 +50,5 @@ async function main({ fid }: z.infer<typeof findedObjType>) {
 	});
 	const box = gid('view_div', 'div');
 	render(box, serialized);
-	renderMath(
-		Array.from(box
-			.children)
-			.filter(n => n.className.includes('show_body_text'))
-			.flatMap(n => Array.from(n.querySelectorAll('.math'))),
-	);
 }
 
