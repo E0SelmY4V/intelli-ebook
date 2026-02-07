@@ -8,6 +8,7 @@
 	"devDependencies": {
 		"@eslint/js": "latest",
 		"@eslint/markdown": "latest",
+		"@eslint-react/eslint-plugin": "latest",
 		"@types/eslint": "latest",
 		"@types/tape": "latest",
 		"colortape": "latest",
