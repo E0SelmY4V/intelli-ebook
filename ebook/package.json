@@ -5,6 +5,7 @@
 		"mathjax": "latest",
 		"react-dom": "latest",
 		"react": "latest",
+		"re-resizable": "latest",
 		"@types/react": "latest",
 		"@types/react-dom": "latest",
 		"clsx": "latest",

@@ -12,12 +12,18 @@
 }
 
 .show_body_header_box {
-	flex: none;
-	width: 20vw;
 	background: bisque;
 	overflow-y: auto;
 	overflow-x: hidden;
 	border-right: 2px solid black;
+}
+
+.show_body_handle:hover {
+	background: rgba(0, 0, 0, 0.2);
+}
+
+.show_body_handle:active {
+	background: rgba(0, 0, 0, 0.5);
 }
 
 .show_header {
