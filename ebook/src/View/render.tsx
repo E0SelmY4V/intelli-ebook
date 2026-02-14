@@ -30,3 +30,8 @@ export class MathJaxRenderer {
 
 export const MathJaxRendererContext = createContext(new MathJaxRenderer());
 
+export function isMobile() {
+	return window.matchMedia('(orientation: portrait)').matches;
+}
+export const IsMobileContext = createContext(isMobile());
+
